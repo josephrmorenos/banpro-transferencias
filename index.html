@@ -43,20 +43,25 @@
             // Intentar abrir la app
             window.location = deeplinkUrl;
 
-            // Comprobar si la app se abrió
+            // Usar un intervalo para verificar si la app se abrió
             const interval = setInterval(() => {
                 const delta = Date.now() - start;
                 if (delta > 4000) {
-                    // Si la app no se abrió en 4 segundos, redirigir a la tienda
-                    clearInterval(interval);
+                    clearInterval(interval); // Detener el intervalo
                     if (isAndroid) {
                         window.location = playStore;
                     } else if (isIOS) {
                         window.location = appStore;
                     }
                 }
-            }, 500);  // Revisa cada medio segundo
+            }, 500);  // Revisamos cada medio segundo
 
+            // Evitar mostrar el error de "dirección no válida" en iOS
+            if (isIOS) {
+                setTimeout(() => {
+                    window.location = appStore;
+                }, 500);  // Después de medio segundo, redirigir a la tienda si no se abre la app
+            }
         });
     </script>
 </body>
