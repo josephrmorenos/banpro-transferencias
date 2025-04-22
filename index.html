@@ -43,17 +43,20 @@
             // Intentar abrir la app
             window.location = deeplinkUrl;
 
-            // Función para detectar si la app se abrió
-            setTimeout(() => {
+            // Comprobar si la app se abrió
+            const interval = setInterval(() => {
                 const delta = Date.now() - start;
-                if (delta < 4000) {
+                if (delta > 4000) {
+                    // Si la app no se abrió en 4 segundos, redirigir a la tienda
+                    clearInterval(interval);
                     if (isAndroid) {
                         window.location = playStore;
                     } else if (isIOS) {
                         window.location = appStore;
                     }
                 }
-            }, 4000);  // Aumentamos el tiempo de espera
+            }, 500);  // Revisa cada medio segundo
+
         });
     </script>
 </body>
