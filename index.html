@@ -1,61 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Abrir app Banpro</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 20px;
-      background-color: #007BFF;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Abrir app Banpro</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 2rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <h2>Prueba de Deeplink</h2>
-  <p>Haz clic en el siguiente botón para abrir la app directamente:</p>
+    <h2>Prueba de Deeplink</h2>
+    <p>Haz clic en el siguiente botón para abrir la app directamente:</p>
+    <a id="deeplink" class="btn" href="#">Ir a Transferencias</a>
+    <p>Este enlace funciona solo si tienes instalada la app de Banpro (versión UAT).</p>
 
-  <a id="deeplink" class="btn" href="#">Ir a Transferencias</a>
+    <script>
+        const deeplinkUrl = 'com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount';
+        const playStore = 'https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&hl=es_VE';
+        const appStore = 'https://apps.apple.com/pa/app/banca-m%C3%B3vil-banpro/id1548537395';
 
-<script>
-  const deeplinkUrl = 'com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount';
-  const playStore = 'https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&hl=es_VE';
-  const appStore = 'https://apps.apple.com/pa/app/banca-m%C3%B3vil-banpro/id1548537395';
+        document.getElementById('deeplink').addEventListener('click', function (e) {
+            e.preventDefault();
 
-  document.getElementById('deeplink').addEventListener('click', function (e) {
-    e.preventDefault();
+            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+            const isAndroid = /android/i.test(navigator.userAgent);
 
-    const now = Date.now();
-    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const isAndroid = /android/i.test(navigator.userAgent);
+            const start = Date.now();
+            setTimeout(() => {
+                const delta = Date.now() - start;
+                if (delta < 2200) {
+                    if (isAndroid) {
+                        window.location = playStore;
+                    } else if (isIOS) {
+                        window.location = appStore;
+                    }
+                }
+            }, 1800);
 
-    // Intentar abrir la app
-    window.location = deeplinkUrl;
-
-    // Si después de 2s sigue en el navegador, redirigir
-    setTimeout(function () {
-      const timeSpent = Date.now() - now;
-
-      // Si el usuario no cambió de app (es decir, no abrió la app)
-      if (timeSpent < 2200) {
-        if (isAndroid) {
-          window.location = playStore;
-        } else if (isIOS) {
-          window.location = appStore;
-        }
-      }
-    }, 1800);
-  });
-</script>
-
+            // Intentar abrir la app
+            window.location = deeplinkUrl;
+        });
+    </script>
 </body>
 </html>
