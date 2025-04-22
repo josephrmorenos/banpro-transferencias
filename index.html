@@ -43,18 +43,17 @@
             // Intentar abrir la app
             window.location = deeplinkUrl;
 
-            // Esperar 1.5 segundos para ver si se abrió la app, si no, redirigir a la tienda
+            // Esperar 2.5 segundos para ver si se abrió la app, si no, redirigir a la tienda
             setTimeout(() => {
                 const delta = Date.now() - start;
-                if (delta < 1500) {
-                    // Si no se abrió la app, redirigir a la tienda correspondiente
+                if (delta < 2200) {  // Si el tiempo de espera es bajo, redirigimos
                     if (isAndroid) {
                         window.location = playStore;
                     } else if (isIOS) {
                         window.location = appStore;
                     }
                 }
-            }, 1500);
+            }, 2500);  // Aumentamos el tiempo de espera
         });
     </script>
 </body>
