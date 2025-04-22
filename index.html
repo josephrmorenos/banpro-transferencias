@@ -39,19 +39,22 @@
             const isAndroid = /android/i.test(navigator.userAgent);
 
             const start = Date.now();
+            
+            // Intentar abrir la app
+            window.location = deeplinkUrl;
+
+            // Esperar 1.5 segundos para ver si se abrió la app, si no, redirigir a la tienda
             setTimeout(() => {
                 const delta = Date.now() - start;
-                if (delta < 2200) {
+                if (delta < 1500) {
+                    // Si no se abrió la app, redirigir a la tienda correspondiente
                     if (isAndroid) {
                         window.location = playStore;
                     } else if (isIOS) {
                         window.location = appStore;
                     }
                 }
-            }, 1800);
-
-            // Intentar abrir la app
-            window.location = deeplinkUrl;
+            }, 1500);
         });
     </script>
 </body>
