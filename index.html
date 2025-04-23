@@ -35,30 +35,28 @@
 
   <script>
     function openDeeplink(formID) {
-      const androidScheme = "com.banprogrupopromerica.ni.bancadigital.uat://" + formID;
-      const iosScheme = "com.banprogrupopromerica.ni.bancadigital.uat://" + formID;
+      const scheme = "com.banprogrupopromerica.ni.bancadigital.uat://" + formID;
       const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.uat";
       const iosStore = "https://apps.apple.com/us/app/banca-móvil-banpro/id1548537395";
-
-      const now = Date.now();
       const isAndroid = /android/i.test(navigator.userAgent);
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-      // Abrir el esquema según el dispositivo
-      const deeplink = isAndroid ? androidScheme : iosScheme;
-      window.location = deeplink;
-
-      setTimeout(function () {
-        if (Date.now() - now < 2000) {
-          if (isAndroid) {
-            window.location = androidStore;
-          } else if (isIOS) {
-            window.location = iosStore;
-          } else {
-            alert("Sistema operativo no soportado.");
-          }
+      // Fallback tras 1500ms si no se abre la app
+      const timeout = setTimeout(() => {
+        if (isAndroid) {
+          window.location = androidStore;
+        } else if (isIOS) {
+          window.location = iosStore;
+        } else {
+          alert("Sistema operativo no soportado.");
         }
       }, 1500);
+
+      // Intentar abrir la app con iframe oculto
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = scheme;
+      document.body.appendChild(iframe);
     }
   </script>
 
