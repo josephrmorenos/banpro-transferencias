@@ -1,68 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Abrir app Banpro</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            padding: 2rem;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Acciones Banpro App</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    button {
+      display: block;
+      margin: 10px 0;
+      padding: 15px;
+      font-size: 16px;
+      background-color: #007a33;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #005f27; }
+  </style>
 </head>
 <body>
-    <h2>Prueba de Deeplink</h2>
-    <p>Haz clic en el siguiente botón para abrir la app directamente:</p>
-    <a id="deeplink" class="btn" href="#">Ir a Transferencias</a>
-    <p>Este enlace funciona solo si tienes instalada la app de Banpro (versión UAT).</p>
 
-    <script>
-        const deeplinkUrl = 'com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount';
-        const playStore = 'https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&hl=es_VE';
-        const appStore = 'https://apps.apple.com/pa/app/banca-m%C3%B3vil-banpro/id1548537395';
+  <h2>Ir a Banpro App</h2>
 
-        document.getElementById('deeplink').addEventListener('click', function (e) {
-            e.preventDefault();
+  <button onclick="openDeeplink('frmACHTransfer')">Transferencias ACH</button>
+  <button onclick="openDeeplink('frmBillPayHome')">Pago de Servicios</button>
+  <button onclick="openDeeplink('frmRecharge')">Paquetes & Recargas</button>
+  <button onclick="openDeeplink('frmCashWithdrawal')">Retiro Digital</button>
+  <button onclick="openDeeplink('frmLoanPayments')">Pago de Préstamos</button>
+  <button onclick="openDeeplink('frmCardPayments')">Pago de Tarjetas</button>
+  <button onclick="openDeeplink('frmTransfersFromAccount')">Transferencias</button>
+  <button onclick="openDeeplink('frmCreditCardOffers')">Oferta de Tarjetas</button>
 
-            const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-            const isAndroid = /android/i.test(navigator.userAgent);
+  <script>
+    function openDeeplink(formID) {
+      const androidScheme = "com.banprogrupopromerica.ni.bancadigital.uat://" + formID;
+      const iosScheme = "com.banprogrupopromerica.ni.bancadigital.uat://" + formID;
+      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.uat";
+      const iosStore = "https://apps.apple.com/us/app/banca-móvil-banpro/id1548537395";
 
-            const start = Date.now();
-            
-            // Intentar abrir la app
-            window.location = deeplinkUrl;
+      const now = Date.now();
+      const isAndroid = /android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-            // Usar un intervalo para verificar si la app se abrió
-            const interval = setInterval(() => {
-                const delta = Date.now() - start;
-                if (delta > 4000) {
-                    clearInterval(interval); // Detener el intervalo
-                    if (isAndroid) {
-                        window.location = playStore;
-                    } else if (isIOS) {
-                        window.location = appStore;
-                    }
-                }
-            }, 500);  // Revisamos cada medio segundo
+      // Abrir el esquema según el dispositivo
+      const deeplink = isAndroid ? androidScheme : iosScheme;
+      window.location = deeplink;
 
-            // Evitar mostrar el error de "dirección no válida" en iOS
-            if (isIOS) {
-                setTimeout(() => {
-                    window.location = appStore;
-                }, 500);  // Después de medio segundo, redirigir a la tienda si no se abre la app
-            }
-        });
-    </script>
+      setTimeout(function () {
+        if (Date.now() - now < 2000) {
+          if (isAndroid) {
+            window.location = androidStore;
+          } else if (isIOS) {
+            window.location = iosStore;
+          } else {
+            alert("Sistema operativo no soportado.");
+          }
+        }
+      }, 1500);
+    }
+  </script>
+
 </body>
 </html>
