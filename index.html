@@ -1,94 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deep Linking - Banpro</title>
-  <script>
-    /**
-     * Abre la app a través del deep link.
-     * Si no se logra abrir (aplicación no instalada), redirige a la tienda correspondiente.
-     * @param {string} deepLink - Esquema URL con el nombre del formulario.
-     */
-    function openApp(deepLink) {
-      // Detectar plataforma (Android o iOS)
-      var ua = navigator.userAgent || navigator.vendor || window.opera;
-      var isAndroid = /android/i.test(ua);
-      var isIOS = /iPhone|iPad|iPod/i.test(ua);
-      
-      // URLs de las tiendas
-      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
-      var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      var storeUrl = (isAndroid) ? androidStore : (isIOS ? iosStore : "");
-      
-      // Intentar abrir la aplicación a través del deep link
-      window.location = deepLink;
-      
-      // Fallback a la tienda después de un tiempo en caso de que la app no esté instalada
-      setTimeout(function () {
-        if (storeUrl !== "") {
-          window.location = storeUrl;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Linking - Banpro</title>
+    <style>
+        body {
+            font-family: sans-serif; /* Fuente genérica, puedes cambiarla */
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f4; /* Un fondo gris claro */
         }
-      }, 1500);
-    }
-  </script>
+
+        h1 {
+            color: #004a99; /* Un azul similar al que suelen usar bancos */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Diseño de cuadrícula adaptable */
+            gap: 10px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff; /* Un azul más llamativo para los botones principales */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Oscurecer al pasar el ratón */
+        }
+
+        button:active {
+            background-color: #003d80; /* Más oscuro al hacer clic */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            transform: translateY(1px);
+        }
+
+        .note {
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+    <script>
+        /**
+         * Intenta abrir la app a través del deep link para iOS.
+         * Si falla después de un breve tiempo, redirige a la App Store.
+         * @param {string} deepLink - Esquema URL con el nombre del formulario.
+         * @param {string} iosStoreUrl - URL de la App Store.
+         */
+        function tryOpenIosApp(deepLink, iosStoreUrl) {
+            window.location = deepLink;
+            // Fallback a la App Store después de un breve tiempo si la app no se abre
+            setTimeout(function() {
+                // La navegación a un esquema URI desconocido en iOS 9+ no activa el evento 'blur'.
+                // Una forma de detectar si la aplicación no se abrió es verificar si la página sigue visible.
+                if (document.webkitHidden || document.hidden) {
+                    return; // La aplicación probablemente se abrió
+                }
+                window.location = iosStoreUrl;
+            }, 1500);
+        }
+
+        /**
+         * Intenta abrir la app a través del intent para Android.
+         * Si falla después de un breve tiempo, redirige a la Play Store.
+         * @param {string} deepLink - Esquema URL con el nombre del formulario.
+         * @param {string} androidStoreUrl - URL de la Play Store.
+         */
+        function tryOpenAndroidApp(deepLink, androidStoreUrl) {
+            var intentUrl = "intent://" + deepLink.substring(deepLink.indexOf("://") + 3) + "#Intent;scheme=" + deepLink.substring(0, deepLink.indexOf("://")) + ";package=com.banprogrupopromerica.ni.bancadigital.prod;S.browser_fallback_url=" + encodeURIComponent(androidStoreUrl) + ";end";
+            window.location = intentUrl;
+        }
+
+        /**
+         * Abre la app a través del deep link o redirige a la tienda correspondiente.
+         * @param {string} deepLink - Esquema URL con el nombre del formulario.
+         */
+        function openApp(deepLink) {
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            var isAndroid = /android/i.test(ua);
+            var isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+            var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
+            var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+
+            if (isAndroid) {
+                tryOpenAndroidApp(deepLink, androidStore);
+            } else if (isIOS) {
+                tryOpenIosApp(deepLink, iosStore);
+            } else {
+                // Si no es Android ni iOS, podrías intentar abrir el deep link directamente
+                window.location = deepLink;
+                setTimeout(function () {
+                    if (androidStore !== "") { // Usamos Android como fallback genérico si hay tienda definida
+                        window.location = androidStore;
+                    }
+                }, 1500);
+            }
+        }
+    </script>
 </head>
 <body>
-  <h1>Deep Linking con Formularios Banpro</h1>
-  <p>Selecciona la acción deseada:</p>
-  <ul>
-    <li>
-      <!-- Transferencias ACH: (Envié dinero > transferir desde) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">
-        Transferencias ACH
-      </button>
-    </li>
-    <li>
-      <!-- Pago de servicios: (Realice pagos > servicios) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart')">
-        Pago de Servicios
-      </button>
-    </li>
-    <li>
-      <!-- Paquetes & Recargas: (Realice pagos > servicios > Recargas) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies')">
-        Paquetes &amp; Recargas
-      </button>
-    </li>
-    <li>
-      <!-- Retiro digital: (Menú > Retiro de efectivo > Nuevo retiro de efectivo) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions')">
-        Retiro Digital
-      </button>
-    </li>
-    <li>
-      <!-- Pago de préstamos: (Realice pagos > Préstamos) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">
-        Pago de Préstamos
-      </button>
-    </li>
-    <li>
-      <!-- Pago TC: (Realice Pagos > Tarjetas) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">
-        Pago TC
-      </button>
-    </li>
-    <li>
-      <!-- Transferencias: (Envié dinero > transferir desde) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">
-        Transferencias
-      </button>
-    </li>
-    <li>
-      <!-- Oferta de tarjetas: (Ofertas > Pre-Aprobados > tarjetas de crédito) -->
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB')">
-        Oferta de Tarjetas
-      </button>
-    </li>
-  </ul>
-  
-  <p>
-    Nota: En caso de que el usuario no esté logueado, la aplicación se encargará de solicitar el inicio de sesión y, posteriormente, redirigir al contenido específico.
-  </p>
-</body>
-</html>
+    <h1>Deep Linking con Formularios Banpro</h1>
+    <p>Selecciona la acción deseada:</p>
+    <ul>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">
+                Transferencias ACH
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart')">
+                Pago de Servicios
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies')">
+                Paquetes &amp; Recargas
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions')">
+                Retiro Digital
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">
+                Pago de Préstamos
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">
+                Pago TC
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">
+                Transferencias
+            </button>
+        </li>
+        <li>
+            <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB')">
+                Oferta de
