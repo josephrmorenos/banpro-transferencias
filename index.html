@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,41 +6,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deep Linking - Banpro</title>
   <script>
-    /**
-     * Intenta abrir la app con un deep link.
-     * Si la app no está instalada, redirige a la tienda correspondiente.
-     * Previene redirección si el usuario vuelve desde la app (caso botón Back).
-     */
     function openApp(deepLink) {
       var ua = navigator.userAgent || navigator.vendor || window.opera;
       var isAndroid = /android/i.test(ua);
       var isIOS = /iPhone|iPad|iPod/i.test(ua);
- 
+      var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+
       var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
       var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
       var storeUrl = (isAndroid) ? androidStore : (isIOS ? iosStore : "");
- 
+
       var fallbackTimeout;
-      var pageHidden = false;
- 
-      function handleVisibilityChange() {
-        if (document.hidden) {
-          clearTimeout(fallbackTimeout);
-          pageHidden = true;
-        }
+      var fallbackCancelled = false;
+
+      function cancelFallback() {
+        fallbackCancelled = true;
+        clearTimeout(fallbackTimeout);
+        document.removeEventListener("pagehide", cancelFallback);
+        document.removeEventListener("visibilitychange", cancelFallback);
       }
- 
-      document.addEventListener("visibilitychange", handleVisibilityChange);
- 
-      // Intentar abrir la app
+
+      if (isIOS && isSafari) {
+        document.addEventListener("pagehide", cancelFallback);
+      } else {
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) cancelFallback();
+        });
+      }
+
       window.location = deepLink;
- 
-      // Fallback si no se abrió la app
+
       fallbackTimeout = setTimeout(function () {
-        if (!pageHidden && storeUrl) {
+        if (!fallbackCancelled && storeUrl) {
           window.location = storeUrl;
         }
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
       }, 1500);
     }
   </script>
@@ -48,48 +48,16 @@
   <h1>Deep Linking con Formularios Banpro</h1>
   <p>Selecciona la acción deseada:</p>
   <ul>
-    <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">
-          Transferencias ACH
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart')">
-          Pago de Servicios
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies')">
-          Paquetes &amp; Recargas
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions')">
-          Retiro Digital
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">
-          Pago de Préstamos
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">
-          Pago TC
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">
-          Transferencias
-      </button>
-  </li>
-  <li>
-      <button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB')">
-        Oferta de Tarjetas
-      </button>
-    </li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">Transferencias ACH</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart')">Pago de Servicios</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies')">Paquetes &amp; Recargas</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions')">Retiro Digital</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">Pago de Préstamos</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount')">Pago TC</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">Transferencias</button></li>
+    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB')">Oferta de Tarjetas</button></li>
   </ul>
- 
+
   <p>
     Nota: En caso de que el usuario no esté logueado, la aplicación se encargará de solicitar el inicio de sesión y, posteriormente, redirigir al contenido específico.
   </p>
