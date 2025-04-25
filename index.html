@@ -12,6 +12,27 @@
       var isIOS = /iPhone|iPad|iPod/i.test(ua);
       var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
+      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
+      var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      var storeUrl = (isAndroid) ? androidStore : (isIOS ? iosStore : "");
+
+      var fallbackTimeout;
+      var fallbackCancelled = false;
+
+      function cancelFallback() {
+        fallbackCancelled = true;
+        clearTimeout(fallbackTimeout);
+        window.removeEventListener("blur", cancelFallback);
+        document.removeEventListener("visibilitychange", cancelFallback);
+        document.removeEventListener("pagehide", cancelFallback);
+      }
+
+      // Detectar si el usuario salió del navegador (a la app)
+      window.addEventListener("blur", cancelFallback);
+      document.addEventListener("visibilitychange", cancelFallback);
+      document.addEventListener("pagehide", cancelFallback);
+
+      // ✅ Abrir deeplink vía iframe en iOS Safari
       if (isIOS && isSafari) {
         var iframe = document.createElement("iframe");
         iframe.style.display = "none";
@@ -20,11 +41,19 @@
       } else {
         window.location = deepLink;
       }
+
+      // ⏳ Fallback a tienda si no se canceló por salida de la app
+      fallbackTimeout = setTimeout(function () {
+        if (!fallbackCancelled && storeUrl) {
+          window.location = storeUrl;
+        }
+      }, 1500);
     }
   </script>
 </head>
 <body>
   <h1>Deep Linking con Formularios Banpro</h1>
+  <p>Selecciona la acción deseada:</p>
   <ul>
     <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">Transferencias ACH</button></li>
     <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart')">Pago de Servicios</button></li>
@@ -36,6 +65,8 @@
     <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB')">Oferta de Tarjetas</button></li>
   </ul>
 
-  <p>¿No se abrió la app? <a href="https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395" target="_blank">Descárgala desde App Store</a></p>
+  <p>
+    Nota: En caso de que el usuario no esté logueado, la aplicación se encargará de solicitar el inicio de sesión y, posteriormente, redirigir al contenido específico.
+  </p>
 </body>
 </html>
