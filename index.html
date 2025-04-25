@@ -22,20 +22,27 @@
       function cancelFallback() {
         fallbackCancelled = true;
         clearTimeout(fallbackTimeout);
-        document.removeEventListener("pagehide", cancelFallback);
+        window.removeEventListener("blur", cancelFallback);
         document.removeEventListener("visibilitychange", cancelFallback);
+        document.removeEventListener("pagehide", cancelFallback);
       }
 
+      // Detectar si el usuario salió del navegador (a la app)
+      window.addEventListener("blur", cancelFallback);
+      document.addEventListener("visibilitychange", cancelFallback);
+      document.addEventListener("pagehide", cancelFallback);
+
+      // ✅ Abrir deeplink vía iframe en iOS Safari
       if (isIOS && isSafari) {
-        document.addEventListener("pagehide", cancelFallback);
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
       } else {
-        document.addEventListener("visibilitychange", function () {
-          if (document.hidden) cancelFallback();
-        });
+        window.location = deepLink;
       }
 
-      window.location = deepLink;
-
+      // ⏳ Fallback a tienda si no se canceló por salida de la app
       fallbackTimeout = setTimeout(function () {
         if (!fallbackCancelled && storeUrl) {
           window.location = storeUrl;
