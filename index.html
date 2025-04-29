@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Abriendo Banca Móvil Banpro…</title>
+  <title>Redireccionando a Banpro…</title>
   <style>
     body {
-      background: #f6f9f7;
-      color: #003d1f;
+      margin: 0;
+      padding: 20px;
+      background: #f5f9f6;
       font-family: Arial, sans-serif;
+      color: #003d1f;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
       text-align: center;
-      padding: 20px;
+    }
+    .box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
     }
     h1 {
-      color: #006f3c;
       margin-bottom: 16px;
+      color: #006f3c;
       font-size: 1.8em;
     }
     p {
@@ -28,73 +35,89 @@
       font-size: 1em;
       color: #4a6357;
     }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #cde3d5;
+      border-top-color: #006f3c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     button {
       display: none;
+      margin-top: 20px;
       background: #006f3c;
-      color: white;
+      color: #fff;
       border: none;
-      border-radius: 8px;
       padding: 12px 24px;
+      border-radius: 8px;
       font-size: 1em;
       cursor: pointer;
     }
-    button:hover {
-      background: #00552e;
-    }
+    button:hover { background: #00552e; }
   </style>
 </head>
 <body>
-  <h1>Abriendo Banca Móvil Banpro…</h1>
-  <p>Si la app no se abre automáticamente, toca el botón.</p>
-  <button id="manualBtn">Abrir App Banpro</button>
+  <div class="box">
+    <h1>Abriendo Banca Móvil Banpro…</h1>
+    <p>Un momento, estamos conectando con tu app.</p>
+    <div class="spinner"></div>
+    <button id="manualBtn">Abrir App Banpro</button>
+  </div>
 
   <script>
     window.onload = function() {
-      const params = new URLSearchParams(window.location.search);
+      const params   = new URLSearchParams(window.location.search);
       const deepLink = params.get('deepLink');
       if (!deepLink) return;
 
-      const ua = navigator.userAgent.toLowerCase();
+      const ua        = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
-      const storeUrl  = isAndroid
-        ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
-        : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      const isSafari  = isIOS && /^((?!chrome|android).)*safari/.test(ua);
 
-      let longTimer;
+      // URLs de tienda
+      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
+      const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      const storeUrl     = isAndroid ? androidStore : iosStore;
 
-      // 1) Intento inmediato de abrir la app
-      window.location.href = deepLink;
-
-      // 2) Si NO hay blur en 500ms → app NO instalada → redirigir pronto
-      const shortTimer = setTimeout(() => {
-        window.location.href = storeUrl;
-      }, 500);
-
-      // 3) Si hay blur (app abrió), cancelamos short y programamos long
-      function onBlur() {
-        clearTimeout(shortTimer);
-        // programa un fallback lejano (solo en caso de que regresen a esta página)
-        longTimer = setTimeout(() => {
-          window.location.href = storeUrl;
-        }, 20000);
+      // 1) Intento de apertura:
+      if (isSafari) {
+        // Safari iOS: usar iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+      } else {
+        // Otros navegadores: window.location
+        window.location.href = deepLink;
       }
 
-      window.addEventListener("blur", onBlur);
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === 'hidden') onBlur();
-      });
-      document.addEventListener("pagehide", onBlur);
+      // 2) Fallback a tienda tras 5s
+      const timeoutId = setTimeout(() => {
+        window.location.href = storeUrl;
+      }, 5000);
 
-      // 4) Mostrar botón manual tras 550ms si la app no abrió
+      // 3) Si la app se abre, aborta el fallback
+      function cancelFallback() {
+        clearTimeout(timeoutId);
+      }
+      window.addEventListener('blur', cancelFallback);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') cancelFallback();
+      });
+      document.addEventListener('pagehide', cancelFallback);
+
+      // 4) Botón manual
       setTimeout(() => {
         document.getElementById('manualBtn').style.display = 'inline-block';
-      }, 550);
-
-      document.getElementById('manualBtn').onclick = function() {
+      }, 5200);
+      document.getElementById('manualBtn').onclick = () => {
         window.location.href = deepLink;
       };
-    };
+    }
   </script>
 </body>
 </html>
