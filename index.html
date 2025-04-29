@@ -45,17 +45,15 @@
 </head>
 <body>
   <h1>Abriendo Banca Móvil Banpro…</h1>
-  <p>Si no ves nada, toca el botón para abrir la app.</p>
+  <p>Si la app no se abre automáticamente, toca el botón.</p>
   <button id="manualBtn">Abrir App Banpro</button>
 
   <script>
     window.onload = function() {
-      // 1. Obtener el deepLink de la URL
       const params = new URLSearchParams(window.location.search);
       const deepLink = params.get('deepLink');
       if (!deepLink) return;
 
-      // 2. Definir URL de fallback (tienda)
       const ua = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
@@ -63,20 +61,36 @@
         ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
         : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
-      // 3. Intentar abrir la app inmediatamente
+      let longTimer;
+
+      // 1) Intento inmediato de abrir la app
       window.location.href = deepLink;
 
-      // 4. Después de 2s redirigir a la tienda si la app no abrió
-      setTimeout(() => {
+      // 2) Si NO hay blur en 500ms → app NO instalada → redirigir pronto
+      const shortTimer = setTimeout(() => {
         window.location.href = storeUrl;
-      }, 2000);
+      }, 500);
 
-      // 5. Mostrar botón manual tras 2.2s
+      // 3) Si hay blur (app abrió), cancelamos short y programamos long
+      function onBlur() {
+        clearTimeout(shortTimer);
+        // programa un fallback lejano (solo en caso de que regresen a esta página)
+        longTimer = setTimeout(() => {
+          window.location.href = storeUrl;
+        }, 20000);
+      }
+
+      window.addEventListener("blur", onBlur);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === 'hidden') onBlur();
+      });
+      document.addEventListener("pagehide", onBlur);
+
+      // 4) Mostrar botón manual tras 550ms si la app no abrió
       setTimeout(() => {
         document.getElementById('manualBtn').style.display = 'inline-block';
-      }, 2200);
+      }, 550);
 
-      // 6. Si el usuario hace clic manualmente
       document.getElementById('manualBtn').onclick = function() {
         window.location.href = deepLink;
       };
