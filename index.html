@@ -1,89 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Abriendo Banpro…</title>
+  <title>Abriendo Banca Móvil Banpro…</title>
   <style>
-    body { margin:0; padding:20px; background:#f5f9f6;
-      font-family:Arial,sans-serif; color:#003d1f;
-      display:flex;align-items:center;justify-content:center;
-      height:100vh; text-align:center; }
-    .box { background:#fff; padding:30px; border-radius:12px;
-      box-shadow:0 4px 20px rgba(0,0,0,0.1);
-      max-width:400px; width:100%; }
-    h1 { color:#006f3c; font-size:1.8em; margin-bottom:16px; }
-    p  { color:#4a6357; margin-bottom:24px; }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f5f9f6;
+      font-family: Arial, sans-serif;
+      color: #003d1f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .box {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      margin-bottom: 16px;
+      color: #006f3c;
+      font-size: 1.8em;
+    }
+    p {
+      margin-bottom: 24px;
+      font-size: 1em;
+      color: #4a6357;
+    }
     .spinner {
-      width:48px; height:48px;
-      border:5px solid #cde3d5; border-top-color:#006f3c;
-      border-radius:50%; animation:spin 1s linear infinite;
-      margin:auto;
+      width: 48px;
+      height: 48px;
+      border: 5px solid #cde3d5;
+      border-top-color: #006f3c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto;
     }
-    @keyframes spin{to{transform:rotate(360deg);}}
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .actions {
+      margin-top: 20px;
+    }
     button {
-      display:none; margin-top:20px; background:#006f3c;
-      color:#fff; border:none; padding:12px 24px;
-      border-radius:8px; font-size:1em; cursor:pointer;
+      margin: 5px;
+      background: #006f3c;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1em;
+      cursor: pointer;
     }
-    button:hover { background:#00552e; }
+    button:hover { background: #00552e; }
   </style>
 </head>
 <body>
   <div class="box">
-    <h1>Conectando con tu app Banpro…</h1>
-    <p>Por favor espera un momento.</p>
+    <h1>Abriendo Banca Móvil Banpro…</h1>
+    <p>Un momento, estamos conectando con tu app.</p>
     <div class="spinner"></div>
-    <button id="manualBtn">Abrir App Banpro</button>
+    <div class="actions" id="fallbackButtons" style="display: none;">
+      <button id="openApp">Abrir App Banpro</button>
+      <button id="openStore">Ir a la tienda</button>
+    </div>
   </div>
 
   <script>
-    window.onload = function() {
-      const deepLink = new URLSearchParams(window.location.search).get('deepLink');
+    window.onload = function () {
+      const params   = new URLSearchParams(window.location.search);
+      const deepLink = params.get('deepLink');
       if (!deepLink) return;
 
       const ua        = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
-      const isSafari  = isIOS && /^((?!chrome|android).)*safari/.test(ua);
-      const storeUrl  = isAndroid
-        ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
-        : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
-      const fallbackId = setTimeout(() => {
-        window.location.href = storeUrl;
+      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
+      const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      const storeUrl     = isAndroid ? androidStore : iosStore;
+
+      // Intentar abrir app
+      window.location.href = deepLink;
+
+      // Mostrar botones después de 5s si nada sucede
+      setTimeout(() => {
+        document.getElementById('fallbackButtons').style.display = 'block';
       }, 5000);
 
-      function cancelFallback() { clearTimeout(fallbackId); }
-      window.addEventListener('blur', cancelFallback);
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') cancelFallback();
-      });
-      document.addEventListener('pagehide', cancelFallback);
-
-      if (isSafari) {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = deepLink;
-        document.body.appendChild(iframe);
-      } else {
+      // Fallbacks manuales
+      document.getElementById('openApp').onclick = () => {
         window.location.href = deepLink;
-      }
-
-      setTimeout(() => {
-        const btn = document.getElementById('manualBtn');
-        btn.style.display = 'inline-block';
-        btn.onclick = () => {
-          if (isSafari) {
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = deepLink;
-            document.body.appendChild(iframe);
-          } else {
-            window.location.href = deepLink;
-          }
-        };
-      }, 5200);
+      };
+      document.getElementById('openStore').onclick = () => {
+        window.location.href = storeUrl;
+      };
     };
   </script>
 </body>
