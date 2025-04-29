@@ -6,8 +6,8 @@
   <title>Redireccionando a Banpro...</title>
   <style>
     body {
-      background-color: #f6f9f7;
-      font-family: 'Arial', sans-serif;
+      background: #f6f9f7;
+      font-family: Arial, sans-serif;
       color: #003d1f;
       display: flex;
       flex-direction: column;
@@ -29,24 +29,25 @@
     }
   </style>
   <script>
-    function openApp(deepLink) {
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      const deepLink = params.get('deepLink');
+      if (!deepLink) return;
+
       const ua = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
-      const isIOS = /iphone|ipad|ipod/.test(ua);
-      const isSafari = /^((?!chrome|android).)*safari/.test(ua);
-      
+      const isIOS     = /iphone|ipad|ipod/.test(ua);
+      const isSafari  = /^((?!chrome|android).)*safari/.test(ua);
+
       const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
-      const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      const fallbackUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
+      const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      const fallbackUrl  = isAndroid ? androidStore : (isIOS ? iosStore : "");
 
       let fallbackTriggered = false;
 
       function cancelFallback() {
         fallbackTriggered = true;
-        clearTimeout(fallbackTimer);
-        window.removeEventListener("blur", cancelFallback);
-        document.removeEventListener("visibilitychange", cancelFallback);
-        document.removeEventListener("pagehide", cancelFallback);
+        clearTimeout(timer);
       }
 
       window.addEventListener("blur", cancelFallback);
@@ -54,27 +55,20 @@
       document.addEventListener("pagehide", cancelFallback);
 
       if (isIOS && isSafari) {
-        const iframe = document.createElement("iframe");
-        iframe.style.display = "none";
+        // iframe en Safari iOS
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
         iframe.src = deepLink;
         document.body.appendChild(iframe);
       } else {
         window.location.href = deepLink;
       }
 
-      const fallbackTimer = setTimeout(() => {
+      const timer = setTimeout(() => {
         if (!fallbackTriggered && fallbackUrl) {
           window.location.href = fallbackUrl;
         }
-      }, 2000);
-    }
-
-    window.onload = function () {
-      const params = new URLSearchParams(window.location.search);
-      const deepLink = params.get("deepLink");
-      if (deepLink) {
-        openApp(deepLink);
-      }
+      }, 2500);
     };
   </script>
 </head>
