@@ -76,22 +76,20 @@
       const ua        = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
+      const isSafari  = isIOS && /^((?!chrome|android).)*safari/.test(ua);
 
       const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
       const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
       const storeUrl     = isAndroid ? androidStore : iosStore;
 
-      // 1) Intentamos abrir la app siempre por window.location
-      window.location.href = deepLink;
-
-      // 2) Fallback a tienda tras 5s
-      const timeoutId = setTimeout(() => {
+      // 1) Programar fallback a tienda en 5s
+      const fallbackId = setTimeout(() => {
         window.location.href = storeUrl;
       }, 5000);
 
-      // 3) Si la app se abre (pérdida de foco), cancelamos el fallback
+      // 2) Cancelar fallback si la app abre
       function cancelFallback() {
-        clearTimeout(timeoutId);
+        clearTimeout(fallbackId);
       }
       window.addEventListener('blur', cancelFallback);
       document.addEventListener('visibilitychange', () => {
@@ -99,12 +97,29 @@
       });
       document.addEventListener('pagehide', cancelFallback);
 
-      // 4) Botón manual si algo falla
+      // 3) Invocar deepLink en Safari con iframe, en otros con window.location
+      if (isSafari) {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+      } else {
+        window.location.href = deepLink;
+      }
+
+      // 4) Botón manual tras 5.2s
       setTimeout(() => {
         document.getElementById('manualBtn').style.display = 'inline-block';
       }, 5200);
       document.getElementById('manualBtn').onclick = () => {
-        window.location.href = deepLink;
+        if (isSafari) {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = deepLink;
+          document.body.appendChild(iframe);
+        } else {
+          window.location.href = deepLink;
+        }
       };
     }
   </script>
