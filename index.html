@@ -1,62 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Abriendo Banca Móvil Banpro…</title>
+  <title>Abriendo Banpro…</title>
   <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #f5f9f6;
-      font-family: Arial, sans-serif;
-      color: #003d1f;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-    .box {
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 100%;
-    }
-    h1 {
-      margin-bottom: 16px;
-      color: #006f3c;
-      font-size: 1.8em;
-    }
-    p {
-      margin-bottom: 24px;
-      font-size: 1em;
-      color: #4a6357;
-    }
+    body { margin:0; padding:20px; background:#f5f9f6;
+      font-family:Arial,sans-serif; color:#003d1f;
+      display:flex;align-items:center;justify-content:center;
+      height:100vh; text-align:center; }
+    .box { background:#fff; padding:30px; border-radius:12px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.1);
+      max-width:400px; width:100%; }
+    h1 { color:#006f3c; font-size:1.8em; margin-bottom:16px; }
+    p  { color:#4a6357; margin-bottom:24px; }
     .spinner {
-      width: 48px;
-      height: 48px;
-      border: 5px solid #cde3d5;
-      border-top-color: #006f3c;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: auto;
+      width:48px; height:48px;
+      border:5px solid #cde3d5; border-top-color:#006f3c;
+      border-radius:50%; animation:spin 1s linear infinite;
+      margin:auto;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin{to{transform:rotate(360deg);}}
     button {
-      display: none;
-      margin-top: 20px;
-      background: #006f3c;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 1em;
-      cursor: pointer;
+      display:none; margin-top:20px; background:#006f3c;
+      color:#fff; border:none; padding:12px 24px;
+      border-radius:8px; font-size:1em; cursor:pointer;
     }
-    button:hover { background: #00552e; }
+    button:hover { background:#00552e; }
   </style>
 </head>
 <body>
@@ -69,54 +39,49 @@
 
   <script>
     window.onload = function() {
-      const params   = new URLSearchParams(window.location.search);
-      const deepLink = params.get('deepLink');
+      const deepLink = new URLSearchParams(window.location.search).get('deepLink');
       if (!deepLink) return;
 
       const ua        = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
       const isSafari  = isIOS && /^((?!chrome|android).)*safari/.test(ua);
+      const storeUrl  = isAndroid
+        ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
+        : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
-      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
-      const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      const storeUrl     = isAndroid ? androidStore : iosStore;
-
-      // 1) Programar fallback a tienda en 5s
       const fallbackId = setTimeout(() => {
         window.location.href = storeUrl;
       }, 5000);
 
-      // 2) Cancelar fallback si la app arranca
-      function cancelFallback() {
-        clearTimeout(fallbackId);
-      }
+      function cancelFallback() { clearTimeout(fallbackId); }
       window.addEventListener('blur', cancelFallback);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') cancelFallback();
       });
       document.addEventListener('pagehide', cancelFallback);
 
-      // 3) Invocar deepLink de forma mixta:
-      //    a) Siempre lanzar window.location para instalar
-      //    b) Además, en Safari, usar un iframe para que el timer siga corriendo
-      window.location.href = deepLink;
       if (isSafari) {
-        setTimeout(() => {
-          const iframe = document.createElement('iframe');
-          iframe.style.display = 'none';
-          iframe.src = deepLink;
-          document.body.appendChild(iframe);
-        }, 100);
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+      } else {
+        window.location.href = deepLink;
       }
 
-      // 4) Botón manual tras 5.2s
       setTimeout(() => {
         const btn = document.getElementById('manualBtn');
         btn.style.display = 'inline-block';
         btn.onclick = () => {
-          // reintento idéntico al automático
-          window.location.href = deepLink;
+          if (isSafari) {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = deepLink;
+            document.body.appendChild(iframe);
+          } else {
+            window.location.href = deepLink;
+          }
         };
       }, 5200);
     };
