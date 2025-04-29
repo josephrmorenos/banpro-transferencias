@@ -26,26 +26,22 @@
       return url.searchParams.get(key);
     }
 
-    function openDeepLink() {
-      const route = getParam('route');
-      const type = getParam('type');
-      if (!route) return;
+    function openApp(deepLink) {
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      const isAndroid = /android/i.test(ua);
+      const isIOS = /iPhone|iPad|iPod/i.test(ua);
+      const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
-      const baseScheme = 'com.banprogrupopromerica.ni.bancadigital.uat://';
-      const deepLink = type ? `${baseScheme}${route}?type=${type}` : `${baseScheme}${route}`;
-
-      const isAndroid = /android/i.test(navigator.userAgent);
-      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
       const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
       const storeUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
 
-      let fallbackTimer;
-      let fallbackTriggered = false;
+      let fallbackTimeout;
+      let fallbackCancelled = false;
 
       function cancelFallback() {
-        fallbackTriggered = true;
-        clearTimeout(fallbackTimer);
+        fallbackCancelled = true;
+        clearTimeout(fallbackTimeout);
         window.removeEventListener("blur", cancelFallback);
         document.removeEventListener("visibilitychange", cancelFallback);
         document.removeEventListener("pagehide", cancelFallback);
@@ -55,7 +51,7 @@
       document.addEventListener("visibilitychange", cancelFallback);
       document.addEventListener("pagehide", cancelFallback);
 
-      if (isIOS) {
+      if (isIOS && isSafari) {
         const iframe = document.createElement("iframe");
         iframe.style.display = "none";
         iframe.src = deepLink;
@@ -64,14 +60,24 @@
         window.location = deepLink;
       }
 
-      fallbackTimer = setTimeout(() => {
-        if (!fallbackTriggered && storeUrl) {
+      fallbackTimeout = setTimeout(() => {
+        if (!fallbackCancelled && storeUrl) {
           window.location = storeUrl;
         }
       }, 1500);
     }
 
-    window.onload = openDeepLink;
+    function launch() {
+      const route = getParam('route');
+      const type = getParam('type');
+      if (!route) return;
+
+      const baseScheme = 'com.banprogrupopromerica.ni.bancadigital.uat://';
+      const deepLink = type ? `${baseScheme}${route}?type=${type}` : `${baseScheme}${route}`;
+      openApp(deepLink);
+    }
+
+    window.onload = launch;
   </script>
 </head>
 <body>
@@ -79,3 +85,4 @@
   <p>Si no se abre automáticamente, por favor verifica que tienes la app instalada.</p>
 </body>
 </html>
+
