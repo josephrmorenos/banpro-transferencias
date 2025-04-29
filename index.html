@@ -82,12 +82,6 @@
             background: linear-gradient(135deg, #00552e, #004323);
         }
 
-        .store-btn img {
-            width: 28px;
-            margin-right: 12px;
-            filter: brightness(0) invert(1);
-        }
-
         .error-message {
             color: #dc3545;
             background: #f8d7da;
@@ -96,17 +90,6 @@
             margin-top: 25px;
             display: none;
             font-size: 0.95em;
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            
-            .store-btn {
-                padding: 12px 25px;
-                font-size: 1em;
-            }
         }
     </style>
 </head>
@@ -119,7 +102,6 @@
     <p>Estamos conectando con tu aplicación de forma segura...</p>
 
     <a href="#" class="store-btn" id="storeButton" style="display: none;" onclick="handleManualRedirect()">
-        <img src="https://img.icons8.com/fluency/48/000000/download-from-cloud.png" alt="download">
         Descargar Aplicación
     </a>
 
@@ -132,7 +114,6 @@
             const params = new URLSearchParams(window.location.search);
             const deepLink = params.get('deepLink');
             
-            // Validación del deep link
             if (!deepLink || !deepLink.startsWith('com.banprogrupopromerica.ni.bancadigital.uat://')) {
                 showError();
                 return;
@@ -148,34 +129,10 @@
             let appOpened = false;
             let storeTimeout;
 
-            // ================= MEJORAS PARA SAFARI =================
-            function handleIOSRedirection() {
-                // Primer intento inmediato
-                window.location.href = deepLink;
-                
-                // Segundo intento después de 1.5 segundos
-                setTimeout(() => {
-                    if(!appOpened) window.location.href = deepLink;
-                }, 1500);
-
-                // Redirección final a App Store después de 3 segundos
-                storeTimeout = setTimeout(() => {
-                    if(!appOpened) {
-                        window.location.href = iosStore;
-                        // Forzar recarga si falla la redirección
-                        setTimeout(() => {
-                            if(!appOpened) location.reload();
-                        }, 500);
-                    }
-                }, 3000);
-            }
-
-            // Detectar si la app se abrió
             function detectAppOpen() {
-                const events = ['blur', 'pagehide', 'visibilitychange'];
-                events.forEach(event => {
+                ['blur', 'pagehide', 'visibilitychange'].forEach(event => {
                     window.addEventListener(event, () => {
-                        if(document.hidden || event === 'blur') {
+                        if (document.hidden || event === 'blur') {
                             appOpened = true;
                             clearTimeout(storeTimeout);
                         }
@@ -183,31 +140,44 @@
                 });
             }
 
-            // ================= LÓGICA PRINCIPAL =================
-            if(isIOS) {
-                detectAppOpen();
-                handleIOSRedirection();
+            function handleIOS() {
+                window.location = deepLink;
                 
-                // Mostrar botón manual después de 4 segundos
                 setTimeout(() => {
-                    if(!appOpened) {
+                    if (!appOpened) window.location = deepLink;
+                }, 1000);
+
+                storeTimeout = setTimeout(() => {
+                    if (!appOpened) {
+                        window.location = iosStore;
+                        setTimeout(() => !appOpened && location.reload(), 500);
+                    }
+                }, 2500);
+            }
+
+            function handleAndroid() {
+                window.location = deepLink;
+                storeTimeout = setTimeout(() => !appOpened && (window.location = androidStore), 2000);
+            }
+
+            detectAppOpen();
+
+            if (isIOS) {
+                handleIOS();
+                setTimeout(() => {
+                    if (!appOpened) {
                         document.getElementById('storeButton').style.display = 'flex';
                         document.querySelector('.loader').style.display = 'none';
                     }
-                }, 4000);
-                
-            } else if(isAndroid) {
-                // Lógica para Android
-                window.location.href = deepLink;
-                
-                storeTimeout = setTimeout(() => {
-                    if(!appOpened) window.location.href = androidStore;
-                }, 2500);
-
-                window.addEventListener('blur', () => {
-                    appOpened = true;
-                    clearTimeout(storeTimeout);
-                });
+                }, 3500);
+            } else if (isAndroid) {
+                handleAndroid();
+                setTimeout(() => {
+                    if (!appOpened) {
+                        document.getElementById('storeButton').style.display = 'flex';
+                        document.querySelector('.loader').style.display = 'none';
+                    }
+                }, 3000);
             }
         });
 
@@ -218,8 +188,7 @@
         }
 
         function handleManualRedirect() {
-            const ua = navigator.userAgent;
-            const isAndroid = /android/i.test(ua);
+            const isAndroid = /android/i.test(navigator.userAgent);
             window.location.href = isAndroid ? 
                 "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod" : 
                 "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
