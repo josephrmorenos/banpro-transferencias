@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Redireccionando a Banpro...</title>
+  <title>Abriendo Banca Móvil Banpro…</title>
   <style>
     body {
       background: #f6f9f7;
-      font-family: Arial, sans-serif;
       color: #003d1f;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -20,60 +20,67 @@
     }
     h1 {
       color: #006f3c;
+      margin-bottom: 16px;
       font-size: 1.8em;
-      margin-bottom: 20px;
     }
     p {
-      font-size: 1.05em;
+      margin-bottom: 24px;
+      font-size: 1em;
       color: #4a6357;
     }
+    button {
+      display: none;
+      background: #006f3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00552e;
+    }
   </style>
+</head>
+<body>
+  <h1>Abriendo Banca Móvil Banpro…</h1>
+  <p>Si no ves nada, toca el botón para abrir la app.</p>
+  <button id="manualBtn">Abrir App Banpro</button>
+
   <script>
     window.onload = function() {
+      // 1. Obtener el deepLink de la URL
       const params = new URLSearchParams(window.location.search);
       const deepLink = params.get('deepLink');
       if (!deepLink) return;
 
+      // 2. Definir URL de fallback (tienda)
       const ua = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
-      const isSafari  = /^((?!chrome|android).)*safari/.test(ua);
+      const storeUrl  = isAndroid
+        ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
+        : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
-      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
-      const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      const fallbackUrl  = isAndroid ? androidStore : (isIOS ? iosStore : "");
+      // 3. Intentar abrir la app inmediatamente
+      window.location.href = deepLink;
 
-      let fallbackTriggered = false;
+      // 4. Después de 2s redirigir a la tienda si la app no abrió
+      setTimeout(() => {
+        window.location.href = storeUrl;
+      }, 2000);
 
-      function cancelFallback() {
-        fallbackTriggered = true;
-        clearTimeout(timer);
-      }
+      // 5. Mostrar botón manual tras 2.2s
+      setTimeout(() => {
+        document.getElementById('manualBtn').style.display = 'inline-block';
+      }, 2200);
 
-      window.addEventListener("blur", cancelFallback);
-      document.addEventListener("visibilitychange", cancelFallback);
-      document.addEventListener("pagehide", cancelFallback);
-
-      if (isIOS && isSafari) {
-        // iframe en Safari iOS
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = deepLink;
-        document.body.appendChild(iframe);
-      } else {
+      // 6. Si el usuario hace clic manualmente
+      document.getElementById('manualBtn').onclick = function() {
         window.location.href = deepLink;
-      }
-
-      const timer = setTimeout(() => {
-        if (!fallbackTriggered && fallbackUrl) {
-          window.location.href = fallbackUrl;
-        }
-      }, 2500);
+      };
     };
   </script>
-</head>
-<body>
-  <h1>Redirigiendo a la app Banpro...</h1>
-  <p>Si la app no se abre automáticamente, serás redirigido a la tienda en unos segundos.</p>
 </body>
 </html>
