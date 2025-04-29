@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redireccionando a Banpro...</title>
   <style>
     body {
@@ -25,52 +25,76 @@
     p {
       font-size: 16px;
     }
+    .manual-link {
+      margin-top: 20px;
+      color: #006f3c;
+      text-decoration: underline;
+    }
   </style>
   <script>
-    function openApp(deepLink) {
+    function redirectToApp() {
+      const params = new URLSearchParams(window.location.search);
+      const deepLink = params.get('deepLink');
+      
+      if (!deepLink) {
+        window.location = 'https://www.banpro.com';
+        return;
+      }
+
       const ua = navigator.userAgent;
       const isAndroid = /android/i.test(ua);
       const isIOS = /iphone|ipad|ipod/i.test(ua);
+      
       const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
       const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      const storeUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
-
-      let fallbackTimer;
-      let fallbackTriggered = false;
-
-      function cancelFallback() {
-        fallbackTriggered = true;
-        clearTimeout(fallbackTimer);
-        window.removeEventListener("blur", cancelFallback);
-        document.removeEventListener("visibilitychange", cancelFallback);
-        document.removeEventListener("pagehide", cancelFallback);
-      }
-
-      window.addEventListener("blur", cancelFallback);
-      document.addEventListener("visibilitychange", cancelFallback);
-      document.addEventListener("pagehide", cancelFallback);
-
-      // Safari & iOS requieren window.location para deeplinks
-      window.location = deepLink;
-
-      fallbackTimer = setTimeout(() => {
-        if (!fallbackTriggered && storeUrl) {
-          window.location = storeUrl;
+      const storeUrl = isAndroid ? androidStore : iosStore;
+      
+      // Intentamos abrir la app
+      try {
+        // Método universal
+        window.location.href = deepLink;
+        
+        // Método alternativo para iOS
+        if (isIOS) {
+          const iframe = document.createElement('iframe');
+          iframe.style.display = 'none';
+          iframe.src = deepLink;
+          document.body.appendChild(iframe);
+          
+          // Eliminar el iframe después de un tiempo
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 500);
         }
-      }, 2500);
-    }
-
-    window.onload = function () {
-      const params = new URLSearchParams(window.location.search);
-      const deepLink = params.get("deepLink");
-      if (deepLink) {
-        openApp(deepLink);
+        
+        // Redirección de fallback
+        setTimeout(() => {
+          window.location.href = storeUrl;
+        }, 1000);
+        
+        // Detectar si la app se abrió (para iOS)
+        window.addEventListener('pagehide', () => {
+          clearTimeout();
+        });
+        
+        // Para Android
+        window.addEventListener('blur', () => {
+          clearTimeout();
+        });
+        
+      } catch (e) {
+        console.error('Error al redirigir:', e);
+        window.location.href = storeUrl;
       }
-    };
+    }
+    
+    // Ejecutar al cargar
+    window.onload = redirectToApp;
   </script>
 </head>
 <body>
   <h1>Redirigiendo a la app Banpro...</h1>
   <p>Si la app no se abre automáticamente, serás redirigido a la tienda en unos segundos.</p>
+  <a href="#" onclick="redirectToApp()" class="manual-link">Haz clic aquí si no se redirige automáticamente</a>
 </body>
 </html>
