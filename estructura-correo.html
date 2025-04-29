@@ -1,128 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banpro - Accesos Directos</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-      }
-      body {
-        background: #f8faf7;
-        color: #2d473d;
-        line-height: 1.6;
-        padding: 20px;
-      }
-      .container {
-        max-width: 800px;
-        margin: 40px auto;
-        padding: 30px;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.08);
-      }
-      .header {
-        text-align: center;
-        margin-bottom: 40px;
-        padding: 20px 0;
-        border-bottom: 2px solid #e0e6dd;
-      }
-      h1 {
-        color: #006f3c;
-        font-size: 2.2em;
-        margin-bottom: 10px;
-        font-weight: 600;
-      }
-      .grid {
-        display: grid;
-        gap: 15px;
-        margin: 25px 0;
-      }
-      .btn {
-        display: flex;
-        align-items: center;
-        padding: 18px 25px;
-        background: linear-gradient(135deg, #006f3c, #00552e);
-        color: white;
-        text-decoration: none;
-        border-radius: 12px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-      }
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        background: linear-gradient(135deg, #00552e, #004323);
-      }
-      .btn-icon {
-        width: 32px;
-        margin-right: 15px;
-        filter: brightness(0) invert(1);
-      }
-      .disclaimer {
-        text-align: center;
-        margin-top: 35px;
-        color: #6c757d;
-        font-size: 0.95em;
-        padding: 20px;
-        background: #f8faf7;
-        border-radius: 10px;
-      }
-      @media (max-width: 600px) {
-        .container {
-          margin: 20px;
-          padding: 20px;
-        }
-        .btn {
-          padding: 15px 20px;
-          font-size: 0.95em;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Banca Móvil Banpro</h1>
-        <p>Acceso rápido a tus servicios financieros</p>
-      </div>
-      <div class="grid">
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount" class="btn">
-          <img src="https://img.icons8.com/ios-filled/50/000000/money-transfer.png" class="btn-icon" alt="transfer">
-          Transferencias ACH
-        </a>
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart" class="btn">
-          <img src="https://img.icons8.com/ios-glyphs/50/000000/invoice.png" class="btn-icon" alt="services">
-          Pago de Servicios
-        </a>
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies" class="btn">
-          <img src="https://img.icons8.com/ios-filled/50/000000/package.png" class="btn-icon" alt="packages">
-          Paquetes y Recargas
-        </a>
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions" class="btn">
-          <img src="https://img.icons8.com/ios-filled/50/000000/withdrawal.png" class="btn-icon" alt="withdraw">
-          Retiro Digital
-        </a>
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount?type=prestamo" class="btn">
-          <img src="https://img.icons8.com/ios-filled/50/000000/loan.png" class="btn-icon" alt="loan">
-          Pago de Préstamos
-        </a>
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount?type=tc" class="btn">
-          <img src="https://img.icons8.com/ios-filled/50/000000/credit-card.png" class="btn-icon" alt="credit card">
-          Pago de Tarjeta
-        </a>
-        <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB" class="btn">
-          <img src="https://img.icons8.com/ios-filled/50/000000/discount.png" class="btn-icon" alt="offers">
-          Ofertas Exclusivas
-        </a>
-      </div>
-      <div class="disclaimer">
-        <p>Si la aplicación no se abre automáticamente, serás redirigido a la tienda correspondiente</p>
-      </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banpro - Accesos Directos</title>
+  <style>
+    body {
+      background: #f5f9f6;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #2d473d;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+      padding: 40px 30px;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #e0e6dd;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #006f3c;
+      font-size: 2.4em;
+      margin-bottom: 5px;
+    }
+    .header p {
+      font-size: 1.05em;
+      color: #5c7369;
+    }
+    .grid {
+      display: grid;
+      gap: 15px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, #006f3c, #00552e);
+      color: white;
+      text-decoration: none;
+      padding: 18px 24px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-size: 1.05em;
+    }
+    .btn:hover {
+      background: linear-gradient(135deg, #00552e, #003d1f);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    .btn-icon {
+      width: 28px;
+      margin-right: 16px;
+      filter: brightness(0) invert(1);
+    }
+    .disclaimer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #6c757d;
+      background: #f0f4f2;
+      padding: 20px;
+      margin-top: 35px;
+      border-radius: 10px;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 25px 20px; }
+      .btn { font-size: 1em; padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Banca Móvil Banpro</h1>
+      <p>Acceso rápido a tus servicios financieros</p>
     </div>
-  </body>
+    <div class="grid">
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount" class="btn">
+        <img src="https://img.icons8.com/ios-filled/50/000000/money-transfer.png" class="btn-icon" alt="transfer">
+        Transferencias ACH
+      </a>
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart" class="btn">
+        <img src="https://img.icons8.com/ios-glyphs/50/000000/invoice.png" class="btn-icon" alt="services">
+        Pago de Servicios
+      </a>
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies" class="btn">
+        <img src="https://img.icons8.com/ios-filled/50/000000/package.png" class="btn-icon" alt="packages">
+        Paquetes y Recargas
+      </a>
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions" class="btn">
+        <img src="https://img.icons8.com/ios-filled/50/000000/withdrawal.png" class="btn-icon" alt="withdraw">
+        Retiro Digital
+      </a>
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount?type=prestamo" class="btn">
+        <img src="https://img.icons8.com/ios-filled/50/000000/loan.png" class="btn-icon" alt="loan">
+        Pago de Préstamos
+      </a>
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount?type=tc" class="btn">
+        <img src="https://img.icons8.com/ios-filled/50/000000/credit-card.png" class="btn-icon" alt="credit card">
+        Pago de Tarjeta
+      </a>
+      <a href="https://josephrmorenos.github.io/banpro-transferencias/index.html?deepLink=com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB" class="btn">
+        <img src="https://img.icons8.com/ios-filled/50/000000/discount.png" class="btn-icon" alt="offers">
+        Ofertas Exclusivas
+      </a>
+    </div>
+    <div class="disclaimer">
+      Si la aplicación no se abre automáticamente, serás redirigido a la tienda correspondiente.
+    </div>
+  </div>
+</body>
 </html>

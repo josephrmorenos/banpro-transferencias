@@ -1,179 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redireccionando - Banpro</title>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-      }
-      body {
-        background: #f5f7fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        padding: 20px;
-      }
-      .container {
-        background: #fff;
-        border-radius: 15px;
-        padding: 40px 30px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        max-width: 400px;
-        width: 100%;
-      }
-      .loader {
-        margin: 0 auto 20px auto;
-        width: 80px;
-        height: 80px;
-        border: 8px solid #e0e6dd;
-        border-top-color: #006f3c;
-        border-radius: 50%;
-        animation: spin 1.2s linear infinite;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      h1 {
-        font-size: 1.8em;
-        margin-bottom: 15px;
-        color: #006f3c;
-      }
-      p {
-        font-size: 1.1em;
-        margin-bottom: 20px;
-        color: #4a6357;
-        line-height: 1.5;
-      }
-      .store-btn {
-        background: linear-gradient(135deg, #006f3c, #00552e);
-        border: none;
-        border-radius: 12px;
-        color: #fff;
-        padding: 15px 30px;
-        text-decoration: none;
-        font-size: 1.1em;
-        font-weight: 500;
-        cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-        display: none;
-      }
-      .store-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-      .error-message {
-        margin-top: 20px;
-        background: #f8d7da;
-        color: #dc3545;
-        padding: 10px 20px;
-        border-radius: 8px;
-        display: none;
-        font-size: 0.95em;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="loader"></div>
-      <h1>Abriendo Banca Móvil</h1>
-      <p>Estamos conectando de forma segura con tu aplicación...</p>
-      <button class="store-btn" id="storeButton" onclick="handleManualRedirect()">Descargar Aplicación</button>
-      <div class="error-message" id="errorMessage">Error de conexión – Intenta nuevamente.</div>
-    </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Redireccionando a Banpro...</title>
+  <style>
+    body {
+      background-color: #f6f9f7;
+      font-family: 'Arial', sans-serif;
+      color: #003d1f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #006f3c;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 1.05em;
+      color: #4a6357;
+    }
+  </style>
+  <script>
+    function openApp(deepLink) {
+      const ua = navigator.userAgent.toLowerCase();
+      const isAndroid = /android/.test(ua);
+      const isIOS = /iphone|ipad|ipod/.test(ua);
+      const isSafari = /^((?!chrome|android).)*safari/.test(ua);
+      
+      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
+      const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      const fallbackUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
-        const deepLink = params.get('deepLink');
+      let fallbackTriggered = false;
 
-        // Validación básica del deepLink
-        if (!deepLink || deepLink.length < 20 || !deepLink.startsWith('com.banprogrupopromerica.ni.bancadigital.uat://')) {
-          showError();
-          return;
+      function cancelFallback() {
+        fallbackTriggered = true;
+        clearTimeout(fallbackTimer);
+        window.removeEventListener("blur", cancelFallback);
+        document.removeEventListener("visibilitychange", cancelFallback);
+        document.removeEventListener("pagehide", cancelFallback);
+      }
+
+      window.addEventListener("blur", cancelFallback);
+      document.addEventListener("visibilitychange", cancelFallback);
+      document.addEventListener("pagehide", cancelFallback);
+
+      if (isIOS && isSafari) {
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = deepLink;
+        document.body.appendChild(iframe);
+      } else {
+        window.location.href = deepLink;
+      }
+
+      const fallbackTimer = setTimeout(() => {
+        if (!fallbackTriggered && fallbackUrl) {
+          window.location.href = fallbackUrl;
         }
+      }, 2000);
+    }
 
-        const ua = navigator.userAgent;
-        const isAndroid = /android/i.test(ua);
-        const isIOS = /iphone|ipad|ipod/i.test(ua);
-
-        // Definir la URL de fallback (tienda) según el sistema operativo
-        const fallbackUrl = isAndroid
-          ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
-          : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-
-        let appOpened = false;
-
-        // Agregamos eventos para detectar si el navegador pierde foco (lo que indica que se abrió la app)
-        document.addEventListener('visibilitychange', function () {
-          if (document.visibilityState === 'hidden') {
-            appOpened = true;
-          }
-        });
-        window.addEventListener('blur', function () {
-          appOpened = true;
-        });
-        window.addEventListener('pagehide', function () {
-          appOpened = true;
-        });
-
-        // Función que intenta abrir la app mediante el deeplink
-        function openApp() {
-          if (isIOS) {
-            const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-            if (isSafari) {
-              // Para Safari en iOS, se utiliza un iframe oculto
-              const iframe = document.createElement("iframe");
-              iframe.style.display = "none";
-              iframe.src = deepLink;
-              document.body.appendChild(iframe);
-            } else {
-              window.location.href = deepLink;
-            }
-          } else {
-            window.location.href = deepLink;
-          }
-        }
-
-        // Intentamos abrir la app
-        openApp();
-
-        // Timeout: si no se detecta que se abrió la app en 2 segundos, se procede al fallback
-        setTimeout(function () {
-          if (!appOpened) {
-            window.location.href = fallbackUrl;
-          }
-        }, 2000);
-
-        // Mostrar el botón manual y ocultar el loader después de 2.2 segundos si la app no se abrió
-        setTimeout(function () {
-          if (!appOpened) {
-            document.getElementById('storeButton').style.display = 'inline-block';
-          }
-          document.querySelector('.loader').style.display = 'none';
-        }, 2200);
-      });
-
-      function showError() {
-        document.getElementById('errorMessage').style.display = 'block';
-        document.getElementById('storeButton').style.display = 'none';
-        document.querySelector('.loader').style.display = 'none';
+    window.onload = function () {
+      const params = new URLSearchParams(window.location.search);
+      const deepLink = params.get("deepLink");
+      if (deepLink) {
+        openApp(deepLink);
       }
-
-      function handleManualRedirect() {
-        const isAndroid = /android/i.test(navigator.userAgent);
-        window.location.href = isAndroid
-          ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
-          : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      }
-    </script>
-  </body>
+    };
+  </script>
+</head>
+<body>
+  <h1>Redirigiendo a la app Banpro...</h1>
+  <p>Si la app no se abre automáticamente, serás redirigido a la tienda en unos segundos.</p>
+</body>
 </html>
