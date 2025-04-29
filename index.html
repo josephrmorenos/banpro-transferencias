@@ -105,77 +105,41 @@
         const isAndroid = /android/i.test(ua);
         const isIOS = /iphone|ipad|ipod/i.test(ua);
 
-        // URLs para redirigir a la tienda en caso de fallo
-        const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
-        const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+        // URLs de fallback (tiendas)
+        const fallbackUrl = isAndroid
+          ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
+          : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
-        let appOpened = false;
-        let storeTimeout;
-
-        // Se agregan múltiples eventos para detectar la apertura de la app
-        document.addEventListener('visibilitychange', function () {
-          if (document.visibilityState === 'hidden') {
-            appOpened = true;
-            clearTimeout(storeTimeout);
-          }
-        });
-        window.addEventListener('blur', function () {
-          appOpened = true;
-          clearTimeout(storeTimeout);
-        });
-        window.addEventListener('pagehide', function () {
-          appOpened = true;
-          clearTimeout(storeTimeout);
-        });
-
-        // Función para iOS
-        function handleIOS() {
-          const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-          if (isSafari) {
-            // Para Safari usamos un iframe oculto para invocar el deepLink
-            const iframe = document.createElement("iframe");
-            iframe.style.display = "none";
-            iframe.src = deepLink;
-            document.body.appendChild(iframe);
-          } else {
-            window.location.href = deepLink;
-          }
-          // Timeout para redirigir a la tienda solo si la app no se abrió
-          storeTimeout = setTimeout(function () {
-            if (!appOpened && document.visibilityState === 'visible') {
-              window.location.href = iosStore;
-            }
-          }, 3000);
-        }
-
-        // Función para Android
-        function handleAndroid() {
-          window.location.href = deepLink;
-          storeTimeout = setTimeout(function () {
-            if (!appOpened && document.visibilityState === 'visible') {
-              window.location.href = androidStore;
-            }
-          }, 2000);
-        }
-
-        if (isIOS) {
-          handleIOS();
-          setTimeout(function () {
-            if (!appOpened && document.visibilityState === 'visible') {
-              document.getElementById('storeButton').style.display = 'inline-block';
-            }
-            document.querySelector('.loader').style.display = 'none';
-          }, 3500);
-        } else if (isAndroid) {
-          handleAndroid();
-          setTimeout(function () {
-            if (!appOpened && document.visibilityState === 'visible') {
-              document.getElementById('storeButton').style.display = 'inline-block';
-            }
-            document.querySelector('.loader').style.display = 'none';
-          }, 3000);
-        }
+        // Llamamos a openApp con el deepLink y el fallback
+        openApp(deepLink, fallbackUrl);
       });
+
+      function openApp(deepLink, fallbackUrl) {
+        // Detectamos si es Safari en iOS para usar el método con iframe
+        const ua = navigator.userAgent;
+        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+
+        const start = Date.now();
+
+        if (isSafari && /iphone|ipad|ipod/i.test(ua)) {
+          // Para Safari en iOS, se usa un iframe oculto
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = deepLink;
+          document.body.appendChild(iframe);
+        } else {
+          // En otros casos, se usa window.location
+          window.location.href = deepLink;
+        }
+
+        // Tras 1.5 segundos verificamos si la app se abrió
+        setTimeout(function () {
+          if (Date.now() - start < 2000) {
+            // Si el tiempo transcurrido es menor a 2 segundos, asumimos que la app no abrió y redirigimos al fallback
+            window.location.href = fallbackUrl;
+          }
+        }, 1500);
+      }
 
       function showError() {
         document.getElementById('errorMessage').style.display = 'block';
@@ -185,9 +149,9 @@
 
       function handleManualRedirect() {
         const isAndroid = /android/i.test(navigator.userAgent);
-        window.location.href = isAndroid ?
-          "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod" :
-          "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+        window.location.href = isAndroid
+          ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
+          : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
       }
     </script>
   </body>
