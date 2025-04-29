@@ -50,6 +50,7 @@
       document.addEventListener("visibilitychange", cancelFallback);
       document.addEventListener("pagehide", cancelFallback);
  
+      // Comportamiento específico para Safari en iOS
       if (isIOS && isSafari) {
         var iframe = document.createElement("iframe");
         iframe.style.display = "none";
@@ -77,6 +78,6 @@
 </head>
 <body>
   <h1>Redireccionando a la app Banpro...</h1>
-  <p>Si no ocurre nada, es posible que la app no esté instalada.</p>
+  <p>Si la app no se abre automáticamente, serás redirigido a la tienda en unos segundos.</p>
 </body>
 </html>
