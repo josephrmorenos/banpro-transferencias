@@ -21,7 +21,6 @@
             justify-content: center;
             text-align: center;
             padding: 30px;
-            transition: opacity 0.3s ease;
         }
 
         .loader {
@@ -146,69 +145,76 @@
             const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
             const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
             
+            let appOpened = false;
             let storeTimeout;
 
-            const tryOpenApp = () => {
-                // Primer intento de apertura
-                window.location.href = deepLink;
+            // Detectar apertura exitosa
+            function detectAppOpen() {
+                const handlers = ['blur', 'pagehide', 'visibilitychange'];
+                handlers.forEach(event => {
+                    window.addEventListener(event, () => {
+                        if (document.hidden || event === 'blur') {
+                            appOpened = true;
+                            clearTimeout(storeTimeout);
+                        }
+                    });
+                });
+            }
+
+            // Lógica mejorada para iOS
+            function iosRedirectStrategy() {
+                let attempts = 0;
+                const maxAttempts = 3;
                 
-                // Lógica especial para iOS
-                if(isIOS) {
-                    setTimeout(() => {
-                        // Segundo intento con iframe
-                        const iframe = document.createElement('iframe');
-                        iframe.style.display = 'none';
-                        iframe.src = deepLink;
-                        document.body.appendChild(iframe);
-                    }, 1000);
+                function attemptOpen() {
+                    if (attempts < maxAttempts) {
+                        window.location.href = deepLink;
+                        attempts++;
+                        setTimeout(attemptOpen, 1000);
+                    }
                 }
+                attemptOpen();
+            }
 
-                // Configurar timeout para tienda
-                storeTimeout = setTimeout(() => {
-                    redirectToStore(isAndroid ? androidStore : iosStore);
-                }, 2500);
-            };
+            // Función de redirección principal
+            function tryOpenApp() {
+                if (isIOS) {
+                    iosRedirectStrategy();
+                    storeTimeout = setTimeout(() => {
+                        if (!appOpened) window.location = iosStore;
+                    }, 3500);
+                } else {
+                    window.location.href = deepLink;
+                    storeTimeout = setTimeout(() => {
+                        if (!appOpened) window.location = androidStore;
+                    }, 2500);
+                }
+            }
 
-            // Eventos para cancelar redirección si la app se abre
-            window.addEventListener('blur', () => {
-                clearTimeout(storeTimeout);
-                document.body.style.opacity = '0';
-            });
-
-            window.addEventListener('pagehide', () => {
-                clearTimeout(storeTimeout);
-            });
-
-            // Iniciar proceso
+            // Iniciar procesos
+            detectAppOpen();
             tryOpenApp();
 
-            // Mostrar botón manual después de 3 segundos
+            // Mostrar botón manual después de 4 segundos
             setTimeout(() => {
-                document.getElementById('storeButton').style.display = 'flex';
-            }, 3000);
+                if (!appOpened) {
+                    document.getElementById('storeButton').style.display = 'flex';
+                }
+            }, 4000);
         });
-
-        function redirectToStore(storeUrl) {
-            window.location.href = storeUrl;
-        }
 
         function showError() {
             document.getElementById('errorMessage').style.display = 'block';
             document.getElementById('storeButton').style.display = 'none';
             document.querySelector('.loader').style.display = 'none';
-            document.querySelector('h1').textContent = 'Error de enlace';
-            document.querySelector('p').textContent = 'El enlace solicitado no es válido';
         }
 
         function handleManualRedirect() {
             const ua = navigator.userAgent;
             const isAndroid = /android/i.test(ua);
-            
-            if(isAndroid) {
-                window.location.href = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
-            } else {
-                window.location.href = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-            }
+            window.location.href = isAndroid ? 
+                "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod" : 
+                "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
         }
     </script>
 </body>
