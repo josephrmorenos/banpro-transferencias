@@ -25,20 +25,15 @@
     }
   </style>
   <script>
-    function getDeepLink() {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('deepLink');
-    }
- 
-    function redirectToApp(deepLink) {
+    function openApp(deepLink) {
       var ua = navigator.userAgent || navigator.vendor || window.opera;
       var isAndroid = /android/i.test(ua);
       var isIOS = /iPhone|iPad|iPod/i.test(ua);
       var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
  
-      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
+      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
       var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      var storeUrl = (isAndroid) ? androidStore : (isIOS ? iosStore : "");
+      var storeUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
  
       var fallbackTimeout;
       var fallbackCancelled = false;
@@ -71,16 +66,17 @@
       }, 1500);
     }
  
-    window.onload = function() {
-      var deepLink = getDeepLink();
+    window.onload = function () {
+      const params = new URLSearchParams(window.location.search);
+      const deepLink = params.get("deepLink");
       if (deepLink) {
-        redirectToApp(deepLink);
+        openApp(deepLink);
       }
     };
   </script>
 </head>
 <body>
   <h1>Redireccionando a la app Banpro...</h1>
-  <p>Por favor espera unos segundos.</p>
+  <p>Si no ocurre nada, es posible que la app no esté instalada.</p>
 </body>
 </html>
