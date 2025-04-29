@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Redireccionando a Banpro...</title>
+  <title>Redirigir a Banpro</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,18 +14,30 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
       text-align: center;
+      padding: 20px;
     }
-
     h1 {
       color: #006f3c;
       margin-bottom: 20px;
     }
-
-    p {
+    button {
+      background-color: #006f3c;
+      color: white;
+      border: none;
+      padding: 14px 28px;
       font-size: 16px;
-      max-width: 500px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #004d2a;
+    }
+    p.note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 20px;
     }
   </style>
   <script>
@@ -35,9 +47,9 @@
       var isIOS = /iPhone|iPad|iPod/i.test(ua);
       var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
 
-      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
+      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
       var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      var storeUrl = (isAndroid) ? androidStore : (isIOS ? iosStore : "");
+      var storeUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
 
       var fallbackTimeout;
       var fallbackCancelled = false;
@@ -70,20 +82,21 @@
       }, 1500);
     }
 
-    window.onload = function () {
+    function handleClick() {
       const params = new URLSearchParams(window.location.search);
       const deepLink = params.get("deepLink");
       if (deepLink) {
         openApp(deepLink);
       } else {
-        document.querySelector("p").textContent = "No se encontró un enlace válido para abrir la app.";
+        alert("No se encontró un destino válido para abrir.");
       }
-    };
+    }
   </script>
 </head>
 <body>
-  <h1>Redireccionando a la app Banpro...</h1>
-  <p>Si la app no se abre automáticamente, serás redirigido a la tienda en unos segundos.</p>
+  <h1>Acceso Directo Banpro</h1>
+  <p>Haz clic en el botón para abrir la app Banpro:</p>
+  <button onclick="handleClick()">Abrir App Banpro</button>
+  <p class="note">Si la app no está instalada, serás redirigido a la tienda automáticamente.</p>
 </body>
 </html>
-
