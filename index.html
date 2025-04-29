@@ -105,26 +105,34 @@
         const isAndroid = /android/i.test(ua);
         const isIOS = /iphone|ipad|ipod/i.test(ua);
 
-        // URLs para redireccionar a la tienda
+        // URLs para redirigir a la tienda en caso de fallo
         const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
         const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
         let appOpened = false;
         let storeTimeout;
-        
-        // Detectar cambio en la visibilidad para confirmar que la app abrió
+
+        // Se agregan múltiples eventos para detectar la apertura de la app
         document.addEventListener('visibilitychange', function () {
           if (document.visibilityState === 'hidden') {
             appOpened = true;
             clearTimeout(storeTimeout);
           }
         });
+        window.addEventListener('blur', function () {
+          appOpened = true;
+          clearTimeout(storeTimeout);
+        });
+        window.addEventListener('pagehide', function () {
+          appOpened = true;
+          clearTimeout(storeTimeout);
+        });
 
         // Función para iOS
         function handleIOS() {
           const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
           if (isSafari) {
-            // Usar iframe para Safari
+            // Para Safari usamos un iframe oculto para invocar el deepLink
             const iframe = document.createElement("iframe");
             iframe.style.display = "none";
             iframe.src = deepLink;
