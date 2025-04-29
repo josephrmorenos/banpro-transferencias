@@ -9,79 +9,89 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8faf7;
             color: #2d473d;
             line-height: 1.6;
+            padding: 20px;
         }
 
         .container {
             max-width: 800px;
-            margin: 2rem auto;
-            padding: 1.5rem;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 2.5rem;
-            padding: 1.5rem;
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .logo {
-            width: 180px;
-            margin-bottom: 1rem;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 2px solid #e0e6dd;
         }
 
         h1 {
             color: #006f3c;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .grid {
             display: grid;
-            gap: 1.2rem;
-            padding: 1rem;
+            gap: 15px;
+            margin: 25px 0;
         }
 
         .btn {
             display: flex;
             align-items: center;
-            padding: 1.2rem;
-            background: linear-gradient(135deg, #006f3c 0%, #00552e 100%);
+            padding: 18px 25px;
+            background: linear-gradient(135deg, #006f3c, #00552e);
             color: white;
             text-decoration: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            background: linear-gradient(135deg, #00552e 0%, #004323 100%);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #00552e, #004323);
         }
 
         .btn-icon {
-            width: 30px;
-            margin-right: 1rem;
+            width: 32px;
+            margin-right: 15px;
             filter: brightness(0) invert(1);
         }
 
         .disclaimer {
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 35px;
             color: #6c757d;
-            font-size: 0.9rem;
-            padding: 1rem;
-            background: #ffffff;
-            border-radius: 8px;
+            font-size: 0.95em;
+            padding: 20px;
+            background: #f8faf7;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 15px 20px;
+                font-size: 0.95em;
+            }
         }
     </style>
 </head>
@@ -89,7 +99,7 @@
     <div class="container">
         <div class="header">
             <h1>Banca Móvil Banpro</h1>
-            <p>Accede directamente a tus servicios favoritos</p>
+            <p>Acceso rápido a tus servicios financieros</p>
         </div>
 
         <div class="grid">
@@ -130,7 +140,7 @@
         </div>
 
         <div class="disclaimer">
-            <p>Si no tienes la aplicación instalada, serás redirigido automáticamente a la tienda correspondiente.</p>
+            <p>Si la aplicación no se abre automáticamente, serás redirigido a la tienda correspondiente</p>
         </div>
     </div>
 </body>

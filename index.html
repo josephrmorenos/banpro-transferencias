@@ -9,10 +9,10 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f8faf7;
             height: 100vh;
             display: flex;
@@ -20,13 +20,14 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 2rem;
+            padding: 30px;
+            transition: opacity 0.3s ease;
         }
 
         .loader {
             width: 80px;
             height: 80px;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
             position: relative;
         }
 
@@ -34,10 +35,10 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 8px solid transparent;
+            border: 6px solid transparent;
             border-top-color: #006f3c;
             border-radius: 50%;
-            animation: spin 1.2s linear infinite;
+            animation: spin 1.2s cubic-bezier(0.5, 0.1, 0.4, 0.9) infinite;
         }
 
         @keyframes spin {
@@ -47,14 +48,15 @@
 
         h1 {
             color: #006f3c;
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            font-size: 2.4em;
+            margin-bottom: 15px;
+            font-weight: 600;
         }
 
         p {
             color: #4a6357;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+            font-size: 1.1em;
+            margin-bottom: 30px;
             max-width: 600px;
             line-height: 1.6;
         }
@@ -62,33 +64,50 @@
         .store-btn {
             display: inline-flex;
             align-items: center;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, #006f3c 0%, #00552e 100%);
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #006f3c, #00552e);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            font-size: 1.1em;
             font-weight: 500;
+            border: none;
+            cursor: pointer;
         }
 
         .store-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #00552e, #004323);
         }
 
         .store-btn img {
             width: 28px;
-            margin-right: 0.8rem;
+            margin-right: 12px;
+            filter: brightness(0) invert(1);
         }
 
         .error-message {
             color: #dc3545;
             background: #f8d7da;
-            padding: 1rem;
+            padding: 15px 25px;
             border-radius: 8px;
-            margin-top: 2rem;
+            margin-top: 25px;
             display: none;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .store-btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
         }
     </style>
 </head>
@@ -97,24 +116,24 @@
         <div class="loader-circle"></div>
     </div>
 
-    <h1>Redireccionando a Banca Móvil</h1>
-    <p>Estamos preparando tu acceso seguro a la aplicación...</p>
+    <h1>Abriendo Banca Móvil</h1>
+    <p>Estamos conectando con tu aplicación de forma segura...</p>
 
-    <a href="#" class="store-btn" id="storeButton" style="display: none;">
+    <a href="#" class="store-btn" id="storeButton" style="display: none;" onclick="handleManualRedirect()">
         <img src="https://img.icons8.com/fluency/48/000000/download-from-cloud.png" alt="download">
         Descargar Aplicación
     </a>
 
     <div class="error-message" id="errorMessage">
-        Error de redirección - Intenta nuevamente
+        Error de conexión - Intenta nuevamente
     </div>
 
     <script>
-        // Lógica de redirección (mantenida igual)
         document.addEventListener('DOMContentLoaded', function() {
             const params = new URLSearchParams(window.location.search);
             const deepLink = params.get('deepLink');
             
+            // Validación del deep link
             if (!deepLink || !deepLink.startsWith('com.banprogrupopromerica.ni.bancadigital.uat://')) {
                 showError();
                 return;
@@ -127,21 +146,46 @@
             const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
             const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
             
-            window.location.href = deepLink;
-            
-            const storeTimeout = setTimeout(() => {
-                redirectToStore(isAndroid ? androidStore : iosStore);
-            }, 1500);
+            let storeTimeout;
 
-            window.addEventListener('blur', () => clearTimeout(storeTimeout));
-            
-            if (isIOS) {
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = deepLink;
-                document.body.appendChild(iframe);
-                setTimeout(() => iframe.remove(), 100);
-            }
+            const tryOpenApp = () => {
+                // Primer intento de apertura
+                window.location.href = deepLink;
+                
+                // Lógica especial para iOS
+                if(isIOS) {
+                    setTimeout(() => {
+                        // Segundo intento con iframe
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = deepLink;
+                        document.body.appendChild(iframe);
+                    }, 1000);
+                }
+
+                // Configurar timeout para tienda
+                storeTimeout = setTimeout(() => {
+                    redirectToStore(isAndroid ? androidStore : iosStore);
+                }, 2500);
+            };
+
+            // Eventos para cancelar redirección si la app se abre
+            window.addEventListener('blur', () => {
+                clearTimeout(storeTimeout);
+                document.body.style.opacity = '0';
+            });
+
+            window.addEventListener('pagehide', () => {
+                clearTimeout(storeTimeout);
+            });
+
+            // Iniciar proceso
+            tryOpenApp();
+
+            // Mostrar botón manual después de 3 segundos
+            setTimeout(() => {
+                document.getElementById('storeButton').style.display = 'flex';
+            }, 3000);
         });
 
         function redirectToStore(storeUrl) {
@@ -152,13 +196,20 @@
             document.getElementById('errorMessage').style.display = 'block';
             document.getElementById('storeButton').style.display = 'none';
             document.querySelector('.loader').style.display = 'none';
-            document.querySelector('h1').textContent = 'Error de conexión';
-            document.querySelector('p').textContent = 'No pudimos completar la redirección';
+            document.querySelector('h1').textContent = 'Error de enlace';
+            document.querySelector('p').textContent = 'El enlace solicitado no es válido';
         }
 
-        setTimeout(() => {
-            document.getElementById('storeButton').style.display = 'flex';
-        }, 3000);
+        function handleManualRedirect() {
+            const ua = navigator.userAgent;
+            const isAndroid = /android/i.test(ua);
+            
+            if(isAndroid) {
+                window.location.href = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
+            } else {
+                window.location.href = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+            }
+        }
     </script>
 </body>
 </html>
