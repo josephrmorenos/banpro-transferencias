@@ -1,85 +1,164 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redireccionando Banpro...</title>
-  <style>
-    /* Estilos se mantienen igual */
-  </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const params = new URLSearchParams(window.location.search);
-      const deepLink = params.get('deepLink');
-      
-      // Validación actualizada con tu scheme
-      if (!deepLink || !deepLink.startsWith('com.banprogrupopromerica.ni.bancadigital.uat://')) {
-        showError('Enlace inválido');
-        return;
-      }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redireccionando - Banpro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      const ua = navigator.userAgent;
-      const isAndroid = /android/i.test(ua);
-      const isIOS = /iphone|ipad|ipod/i.test(ua);
-      
-      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
-      const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      
-      // Intentar abrir app
-      tryOpenApp(deepLink);
-      
-      // Configurar timeout para tienda
-      const storeTimeout = setTimeout(() => {
-        redirectToStore(isAndroid ? androidStore : iosStore);
-      }, 1500);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8faf7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
 
-      // Detectar si la app se abrió
-      window.addEventListener('blur', () => clearTimeout(storeTimeout));
-      window.addEventListener('pagehide', () => clearTimeout(storeTimeout));
-      
-      // Método alternativo para iOS
-      if (isIOS) {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = deepLink;
-        document.body.appendChild(iframe);
-        setTimeout(() => iframe.remove(), 100);
-      }
-    });
+        .loader {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
 
-    function tryOpenApp(deepLink) {
-      window.location.href = deepLink;
-    }
+        .loader-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 8px solid transparent;
+            border-top-color: #006f3c;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
 
-    function redirectToStore(storeUrl) {
-      window.location.href = storeUrl;
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    function showError(message) {
-      document.querySelector('h1').textContent = message;
-      document.querySelector('.loader').style.display = 'none';
-      document.querySelector('.store-button').style.display = 'block';
-    }
-  </script>
+        h1 {
+            color: #006f3c;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #4a6357;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .store-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #006f3c 0%, #00552e 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+        }
+
+        .store-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .store-btn img {
+            width: 28px;
+            margin-right: 0.8rem;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="loader"></div>
-  <h1>Redirigiendo a Banpro...</h1>
-  <p>Por favor espera unos segundos</p>
-  <a href="#" class="store-button" onclick="handleStoreRedirect()">Descargar App</a>
+    <div class="loader">
+        <div class="loader-circle"></div>
+    </div>
 
-  <script>
-    function handleStoreRedirect() {
-      const ua = navigator.userAgent;
-      const isAndroid = /android/i.test(ua);
-      window.location.href = isAndroid ? 
-        "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod" : 
-        "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-    }
-    
-    setTimeout(() => {
-      document.querySelector('.store-button').style.display = 'block';
-    }, 3000);
-  </script>
+    <h1>Redireccionando a Banca Móvil</h1>
+    <p>Estamos preparando tu acceso seguro a la aplicación...</p>
+
+    <a href="#" class="store-btn" id="storeButton" style="display: none;">
+        <img src="https://img.icons8.com/fluency/48/000000/download-from-cloud.png" alt="download">
+        Descargar Aplicación
+    </a>
+
+    <div class="error-message" id="errorMessage">
+        Error de redirección - Intenta nuevamente
+    </div>
+
+    <script>
+        // Lógica de redirección (mantenida igual)
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const deepLink = params.get('deepLink');
+            
+            if (!deepLink || !deepLink.startsWith('com.banprogrupopromerica.ni.bancadigital.uat://')) {
+                showError();
+                return;
+            }
+
+            const ua = navigator.userAgent;
+            const isAndroid = /android/i.test(ua);
+            const isIOS = /iphone|ipad|ipod/i.test(ua);
+            
+            const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
+            const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+            
+            window.location.href = deepLink;
+            
+            const storeTimeout = setTimeout(() => {
+                redirectToStore(isAndroid ? androidStore : iosStore);
+            }, 1500);
+
+            window.addEventListener('blur', () => clearTimeout(storeTimeout));
+            
+            if (isIOS) {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deepLink;
+                document.body.appendChild(iframe);
+                setTimeout(() => iframe.remove(), 100);
+            }
+        });
+
+        function redirectToStore(storeUrl) {
+            window.location.href = storeUrl;
+        }
+
+        function showError() {
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('storeButton').style.display = 'none';
+            document.querySelector('.loader').style.display = 'none';
+            document.querySelector('h1').textContent = 'Error de conexión';
+            document.querySelector('p').textContent = 'No pudimos completar la redirección';
+        }
+
+        setTimeout(() => {
+            document.getElementById('storeButton').style.display = 'flex';
+        }, 3000);
+    </script>
 </body>
 </html>
