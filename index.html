@@ -148,12 +148,34 @@
             let appOpened = false;
             let storeTimeout;
 
-            // Detectar apertura exitosa
+            // ================= MEJORAS PARA SAFARI =================
+            function handleIOSRedirection() {
+                // Primer intento inmediato
+                window.location.href = deepLink;
+                
+                // Segundo intento después de 1.5 segundos
+                setTimeout(() => {
+                    if(!appOpened) window.location.href = deepLink;
+                }, 1500);
+
+                // Redirección final a App Store después de 3 segundos
+                storeTimeout = setTimeout(() => {
+                    if(!appOpened) {
+                        window.location.href = iosStore;
+                        // Forzar recarga si falla la redirección
+                        setTimeout(() => {
+                            if(!appOpened) location.reload();
+                        }, 500);
+                    }
+                }, 3000);
+            }
+
+            // Detectar si la app se abrió
             function detectAppOpen() {
-                const handlers = ['blur', 'pagehide', 'visibilitychange'];
-                handlers.forEach(event => {
+                const events = ['blur', 'pagehide', 'visibilitychange'];
+                events.forEach(event => {
                     window.addEventListener(event, () => {
-                        if (document.hidden || event === 'blur') {
+                        if(document.hidden || event === 'blur') {
                             appOpened = true;
                             clearTimeout(storeTimeout);
                         }
@@ -161,46 +183,32 @@
                 });
             }
 
-            // Lógica mejorada para iOS
-            function iosRedirectStrategy() {
-                let attempts = 0;
-                const maxAttempts = 3;
+            // ================= LÓGICA PRINCIPAL =================
+            if(isIOS) {
+                detectAppOpen();
+                handleIOSRedirection();
                 
-                function attemptOpen() {
-                    if (attempts < maxAttempts) {
-                        window.location.href = deepLink;
-                        attempts++;
-                        setTimeout(attemptOpen, 1000);
+                // Mostrar botón manual después de 4 segundos
+                setTimeout(() => {
+                    if(!appOpened) {
+                        document.getElementById('storeButton').style.display = 'flex';
+                        document.querySelector('.loader').style.display = 'none';
                     }
-                }
-                attemptOpen();
+                }, 4000);
+                
+            } else if(isAndroid) {
+                // Lógica para Android
+                window.location.href = deepLink;
+                
+                storeTimeout = setTimeout(() => {
+                    if(!appOpened) window.location.href = androidStore;
+                }, 2500);
+
+                window.addEventListener('blur', () => {
+                    appOpened = true;
+                    clearTimeout(storeTimeout);
+                });
             }
-
-            // Función de redirección principal
-            function tryOpenApp() {
-                if (isIOS) {
-                    iosRedirectStrategy();
-                    storeTimeout = setTimeout(() => {
-                        if (!appOpened) window.location = iosStore;
-                    }, 3500);
-                } else {
-                    window.location.href = deepLink;
-                    storeTimeout = setTimeout(() => {
-                        if (!appOpened) window.location = androidStore;
-                    }, 2500);
-                }
-            }
-
-            // Iniciar procesos
-            detectAppOpen();
-            tryOpenApp();
-
-            // Mostrar botón manual después de 4 segundos
-            setTimeout(() => {
-                if (!appOpened) {
-                    document.getElementById('storeButton').style.display = 'flex';
-                }
-            }, 4000);
         });
 
         function showError() {
