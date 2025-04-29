@@ -105,41 +105,62 @@
         const isAndroid = /android/i.test(ua);
         const isIOS = /iphone|ipad|ipod/i.test(ua);
 
-        // URLs de fallback (tiendas)
+        // Definir la URL de fallback (tienda) según el sistema operativo
         const fallbackUrl = isAndroid
           ? "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod"
           : "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
 
-        // Llamamos a openApp con el deepLink y el fallback
-        openApp(deepLink, fallbackUrl);
-      });
+        let appOpened = false;
 
-      function openApp(deepLink, fallbackUrl) {
-        // Detectamos si es Safari en iOS para usar el método con iframe
-        const ua = navigator.userAgent;
-        const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+        // Agregamos eventos para detectar si el navegador pierde foco (lo que indica que se abrió la app)
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'hidden') {
+            appOpened = true;
+          }
+        });
+        window.addEventListener('blur', function () {
+          appOpened = true;
+        });
+        window.addEventListener('pagehide', function () {
+          appOpened = true;
+        });
 
-        const start = Date.now();
-
-        if (isSafari && /iphone|ipad|ipod/i.test(ua)) {
-          // Para Safari en iOS, se usa un iframe oculto
-          const iframe = document.createElement("iframe");
-          iframe.style.display = "none";
-          iframe.src = deepLink;
-          document.body.appendChild(iframe);
-        } else {
-          // En otros casos, se usa window.location
-          window.location.href = deepLink;
+        // Función que intenta abrir la app mediante el deeplink
+        function openApp() {
+          if (isIOS) {
+            const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+            if (isSafari) {
+              // Para Safari en iOS, se utiliza un iframe oculto
+              const iframe = document.createElement("iframe");
+              iframe.style.display = "none";
+              iframe.src = deepLink;
+              document.body.appendChild(iframe);
+            } else {
+              window.location.href = deepLink;
+            }
+          } else {
+            window.location.href = deepLink;
+          }
         }
 
-        // Tras 1.5 segundos verificamos si la app se abrió
+        // Intentamos abrir la app
+        openApp();
+
+        // Timeout: si no se detecta que se abrió la app en 2 segundos, se procede al fallback
         setTimeout(function () {
-          if (Date.now() - start < 2000) {
-            // Si el tiempo transcurrido es menor a 2 segundos, asumimos que la app no abrió y redirigimos al fallback
+          if (!appOpened) {
             window.location.href = fallbackUrl;
           }
-        }, 1500);
-      }
+        }, 2000);
+
+        // Mostrar el botón manual y ocultar el loader después de 2.2 segundos si la app no se abrió
+        setTimeout(function () {
+          if (!appOpened) {
+            document.getElementById('storeButton').style.display = 'inline-block';
+          }
+          document.querySelector('.loader').style.display = 'none';
+        }, 2200);
+      });
 
       function showError() {
         document.getElementById('errorMessage').style.display = 'block';
