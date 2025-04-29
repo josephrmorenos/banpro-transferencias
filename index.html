@@ -1,79 +1,51 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Deep Linking - Banpro</title>
+  <title>Redireccionando a la app Banpro...</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f6f9f7;
       color: #003d1f;
-      padding: 20px;
-      max-width: 600px;
-      margin: 0 auto;
+      text-align: center;
+      padding: 50px;
     }
-
     h1 {
       color: #006f3c;
-      text-align: center;
-    }
-
-    p {
-      font-size: 16px;
       margin-bottom: 20px;
     }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      margin-bottom: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px 20px;
+    p {
       font-size: 16px;
-      background-color: #006f3c;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #004d2a;
-    }
-
-    .note {
-      font-size: 14px;
-      color: #555;
-      margin-top: 30px;
-      text-align: center;
     }
   </style>
   <script>
-    function openApp(deepLink) {
-      var ua = navigator.userAgent || navigator.vendor || window.opera;
-      var isAndroid = /android/i.test(ua);
-      var isIOS = /iPhone|iPad|iPod/i.test(ua);
-      var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    function getParam(key) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(key);
+    }
 
-      var androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod&pcampaignid=web_share";
-      var iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
-      var storeUrl = (isAndroid) ? androidStore : (isIOS ? iosStore : "");
+    function openDeepLink() {
+      const route = getParam('route');
+      const type = getParam('type');
+      if (!route) return;
 
-      var fallbackTimeout;
-      var fallbackCancelled = false;
+      const baseScheme = 'com.banprogrupopromerica.ni.bancadigital.uat://';
+      const deepLink = type ? `${baseScheme}${route}?type=${type}` : `${baseScheme}${route}`;
+
+      const isAndroid = /android/i.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
+      const iosStore = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
+      const storeUrl = isAndroid ? androidStore : (isIOS ? iosStore : "");
+
+      let fallbackTimer;
+      let fallbackTriggered = false;
 
       function cancelFallback() {
-        fallbackCancelled = true;
-        clearTimeout(fallbackTimeout);
+        fallbackTriggered = true;
+        clearTimeout(fallbackTimer);
         window.removeEventListener("blur", cancelFallback);
         document.removeEventListener("visibilitychange", cancelFallback);
         document.removeEventListener("pagehide", cancelFallback);
@@ -83,8 +55,8 @@
       document.addEventListener("visibilitychange", cancelFallback);
       document.addEventListener("pagehide", cancelFallback);
 
-      if (isIOS && isSafari) {
-        var iframe = document.createElement("iframe");
+      if (isIOS) {
+        const iframe = document.createElement("iframe");
         iframe.style.display = "none";
         iframe.src = deepLink;
         document.body.appendChild(iframe);
@@ -92,29 +64,18 @@
         window.location = deepLink;
       }
 
-      fallbackTimeout = setTimeout(function () {
-        if (!fallbackCancelled && storeUrl) {
+      fallbackTimer = setTimeout(() => {
+        if (!fallbackTriggered && storeUrl) {
           window.location = storeUrl;
         }
       }, 1500);
     }
+
+    window.onload = openDeepLink;
   </script>
 </head>
 <body>
-  <h1>Accesos Directos Banpro</h1>
-  <p>Selecciona la opción que deseas abrir en la app:</p>
-  <ul>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmTransfersFromAccount')">Transferencias ACH</button></li>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayStart')">Pago de Servicios</button></li>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayCompanies')">Paquetes y Recargas</button></li>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmCashWithdrawalTransactions')">Retiro Digital</button></li>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount?type=prestamo')">Pago de Préstamos</button></li>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmBillPayFromAccount?type=tc')">Pago de Tarjeta de Crédito</button></li>
-    <li><button onclick="openApp('com.banprogrupopromerica.ni.bancadigital.uat://frmOffersMB')">Oferta de Tarjetas</button></li>
-  </ul>
-  <p class="note">
-    Nota: Si el usuario no ha iniciado sesión, será redirigido al login antes de continuar al destino.
-  </p>
+  <h1>Redirigiendo a la app Banpro...</h1>
+  <p>Si no se abre automáticamente, por favor verifica que tienes la app instalada.</p>
 </body>
 </html>
-
