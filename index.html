@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Redireccionando a Banpro…</title>
+  <title>Abriendo Banca Móvil Banpro…</title>
   <style>
     body {
       margin: 0;
@@ -76,31 +76,20 @@
       const ua        = navigator.userAgent.toLowerCase();
       const isAndroid = /android/.test(ua);
       const isIOS     = /iphone|ipad|ipod/.test(ua);
-      const isSafari  = isIOS && /^((?!chrome|android).)*safari/.test(ua);
 
-      // URLs de tienda
       const androidStore = "https://play.google.com/store/apps/details?id=com.banprogrupopromerica.ni.bancadigital.prod";
       const iosStore     = "https://apps.apple.com/us/app/banca-m%C3%B3vil-banpro/id1548537395";
       const storeUrl     = isAndroid ? androidStore : iosStore;
 
-      // 1) Intento de apertura:
-      if (isSafari) {
-        // Safari iOS: usar iframe
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = deepLink;
-        document.body.appendChild(iframe);
-      } else {
-        // Otros navegadores: window.location
-        window.location.href = deepLink;
-      }
+      // 1) Intentamos abrir la app siempre por window.location
+      window.location.href = deepLink;
 
       // 2) Fallback a tienda tras 5s
       const timeoutId = setTimeout(() => {
         window.location.href = storeUrl;
       }, 5000);
 
-      // 3) Si la app se abre, aborta el fallback
+      // 3) Si la app se abre (pérdida de foco), cancelamos el fallback
       function cancelFallback() {
         clearTimeout(timeoutId);
       }
@@ -110,7 +99,7 @@
       });
       document.addEventListener('pagehide', cancelFallback);
 
-      // 4) Botón manual
+      // 4) Botón manual si algo falla
       setTimeout(() => {
         document.getElementById('manualBtn').style.display = 'inline-block';
       }, 5200);
